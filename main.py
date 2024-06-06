@@ -1312,7 +1312,11 @@ def cook_food():
                     character[3].remove(i)
 
                 character[3].append(recipe)
-                print("\n",recipe,"has been added to your items\n")
+                print("\nNice,",recipe,"has been added to your items\n")
+
+
+                if character[7][0] == "restaurant":
+                    print("Since you're cooking at the restaurant, your food is a little better than expected")
 
 
 username = input("Enter your Username: ")
@@ -2975,8 +2979,16 @@ while game:
                         count += 1
                 print("hopefully your", medical_prompt, "will heal and you'll be able to go out tomorrow")
 
+                if character[7][0] == "house":
+                    print("Since you're resting in your comfy bed, you should have a better chance of healing")
+
                 for i in afflictions:
-                    chance = random.randint(1, 3)
+                    if character[7][0] == "house":
+                        chance = random.randint(1, 2)
+
+                    else:
+                        chance = random.randint(1, 3)
+
                     if chance == 1:
                         print("Your", i, "has healed")
                         afflictions.remove(i)
@@ -3001,13 +3013,20 @@ while game:
             choice = make_choice()
 
             if choice == 1:
-                print("You decide to take some rest today")
+                print("You'll have to take some rest today")
                 if len(afflictions) > 0:
                     print("You lie down and try get some sleep")
                     print("Hopefully your",medical_prompt,"will heal and you'll be able to go out tomorrow\n")
 
+                    if character[7][0] == "house":
+                        print("Since you're resting in your comfy bed, you should have a better chance of healing")
+
                     for i in afflictions:
-                        chance= random.randint(1,3)
+                        if character[7][0] == "house":
+                            chance = random.randint(1, 2)
+
+                        else:
+                            chance= random.randint(1,3)
                         if chance == 1:
                             print("Your",i,"has healed")
                             afflictions.remove(i)
