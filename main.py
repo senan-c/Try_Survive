@@ -198,6 +198,30 @@ def get_cals(x):
     elif x in cal_list_300:
         return 300
 
+    else:
+        if x == "chicken and pasta" or x == "chicken and beef sandwiches":
+            cals = 2350
+
+        elif x == "sausages and pasta":
+            cals = 2150
+
+        elif x == "fruit and cream" or "tuna sandwiches":
+            cals = 1150
+
+        elif x == "Mega-MRE":
+            cals = 3000
+
+        elif x == "peaches and cream":
+            cals = 1650
+
+        elif x == "cereal treats":
+            cals = 1000
+
+        if character[7][0] == "restaurant":
+            cals += round(cals * 0.1)
+
+        return cals
+
 
 def make_choice():
     choice = int(input("Make your choice: "))
@@ -1217,7 +1241,7 @@ def cook_food():
 
     if "sausages" in character[3] and "pasta" in character[3] and "tomato sauce" in character[3]:
         cook_check = True
-        cook_list.append("sausage and pasta")
+        cook_list.append("sausages and pasta")
 
     if "apple" in character[3] and "banana" in character[3] and "can of whipped cream" in character[3]:
         cook_check = True
@@ -1235,7 +1259,7 @@ def cook_food():
         cook_check = True
         cook_list.append("deluxe MRE")
 
-    if "can of peaches" in character[3] and "can of whipped cream" in character[3]:
+    if "canned peaches" in character[3] and "can of whipped cream" in character[3]:
         cook_check = True
         cook_list.append("peaches and cream")
 
@@ -1244,7 +1268,7 @@ def cook_food():
         cook_list.append("cereal treats")
 
     if cook_check == True:
-        print("It looks like you have enough ingredients to do some cooking:\n1.Cook\n2. Don't cook")
+        print("It looks like you have enough ingredients to do some cooking:\n1. Cook\n2. Don't cook")
         choice = make_choice()
 
         if choice == 1:
@@ -1253,18 +1277,42 @@ def cook_food():
             for i in cook_list:
                 print(str(count) + ". " + i)
                 count += 1
-            print(str(count + 1) + ". nothing")
+            print(str(count) + ". nothing")
+
+            choice = make_choice()
 
             if choice != (count + 1):
                 recipe = cook_list[choice - 1]
 
                 if recipe == "chicken and pasta":
-                    character[3].remove("chicken", "pasta", "tomato sauce")
-                    character[3].append(recipe)
+                    remove_list = ["chicken", "pasta", "tomato sauce"]
 
                 elif recipe == "sausage and pasta":
-                    character[3].remove("sausages", "pasta", "tomato sauce")
-                    character[3].append(recipe)
+                    remove_list = ["sausages", "pasta", "tomato sauce"]
+
+                elif recipe == "fruit and cream":
+                    remove_list = ["apple", "banana", "can of whipped cream"]
+
+                elif recipe == "tuna sandwiches":
+                    remove_list = ["can of tuna", "bread"]
+
+                elif recipe == "chicken and beef sandwiches":
+                    remove_list = ["chicken", "beef jerky", "bread"]
+
+                elif recipe == "deluxe MRE":
+                    remove_list = ["chicken", "beef jerky", "MRE"]
+
+                elif recipe == "peaches and cream":
+                    remove_list = ["canned peaches", "can of whipped cream"]
+
+                elif recipe == "cereal treats":
+                    remove_list = ["cereal", "bag of marshmallows"]
+
+                for i in remove_list:
+                    character[3].remove(i)
+
+                character[3].append(recipe)
+                print("\n",recipe,"has been added to your items\n")
 
 
 username = input("Enter your Username: ")
@@ -1324,6 +1372,8 @@ while game:
         print("\nToday you used", calories_used, "calories")
         print("You have", character[2][0], "calories left\n")
 
+        cook_food()
+
         print("Would you like to eat something?\n1. Yes\n2. No, it's time to sleep")
         choice = make_choice()
 
@@ -1372,7 +1422,6 @@ while game:
 
     elif day > 1:
         count = 0
-        suits = ["D", "C", "H", "S"]
         card_list = []
         for i in range(4):
             suit = suits[count]
@@ -3131,6 +3180,8 @@ while game:
                 character[2][0] = 0
             print("\nToday you used", calories_used, "calories")
             print("You have", character[2][0], "calories left\n")
+
+            cook_food()
 
             print("Would you like to eat something?\n1. Yes\n2. No, it's time to sleep")
             choice = make_choice()
