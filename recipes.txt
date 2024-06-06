@@ -1,0 +1,9 @@
+recipes:
+chicken and pasta - chicken, pasta, tomato sauce - 2350
+sausage and pasta - sausage, pasta, tomato sauce - 2150
+fruit and cream - apple, banana, can of whipped cream - 1150
+tuna sandwiches - can of tuna, bread - 1150
+chicken and beef sandwiches - chicken, beef jerky, bread- 2350
+Mega-MRE - MRE, chicken, beef jerky - 3000
+peaches and cream - 1650
+cereal treats - cereal, bag of marshmallows - 1000

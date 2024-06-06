@@ -1,0 +1,1 @@
+(clothing) **combat armour**,(gun) **assault rifle**,(mod) **suppressor**,(ammo) *20 pistol bullets*,(ammo) **10 rifle bullets**,(ammo) **15 rifle bullets**,(ammo) **20 rifle bullets**
