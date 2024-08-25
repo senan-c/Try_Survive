@@ -99,9 +99,10 @@ current_clothing = [[],[],[],[],[]]
 total_armour = 0
 temp_items = []
 afflictions = []
-friends = []
+ex_friends = []
+zombie_survivors = []
 
-areas = ["Downtown","The Suburbs","The City Centre","The Industrial Estate"]
+areas = ["Downtown","the Suburbs","the City Centre","the Industrial Estate"]
 zom_types = ["weak zombie","zombie","strong zombie"]
 explore_list = ["Radio Tower (5 Litres)"]
 shelter = ["small shop","lonely house","secluded shack"]
@@ -120,7 +121,7 @@ days_no_water = 0
 zombies_killed = 0
 water_drank = True
 
-line_break = ("-" * 130)
+line_break = ("-" * 144)
 
 def add_item(x):
     if x[0:2] == "(m":
@@ -473,7 +474,7 @@ def fight_zombie(zombie, weapon_choice, bonus_dam):
                 result = ranged_attack(weapon_choice, "the zombie", zombie.health)
 
             if result[1] == True:
-                print("The zombie strikes!")
+                print("\nThe zombie strikes!")
                 chance = random.randint(1, 7)
                 if chance == 1:
                     print("The", zombie.character, "grabs you and bites!\nYOU ARE DEAD")
@@ -546,11 +547,11 @@ def fight_zombie(zombie, weapon_choice, bonus_dam):
 
             else:
                 print("You swing your",weapon_choice,"and miss")
-                print("The zombie strikes!")
+                print("\nThe zombie strikes!")
                 chance = random.randint(1,7)
                 if chance == 1:
                     print("The",zombie.character,"grabs you and bites!\nYOU ARE DEAD")
-                    return [False, False]
+                    return False
 
                 elif chance == 2:
                     print("The zombie charges forward, but you block its attack with your",weapon_choice)
@@ -573,7 +574,12 @@ def fight_zombie(zombie, weapon_choice, bonus_dam):
         print("The zombie dropped",zombie.loot_drop)
         add_item(zombie.loot_drop)
     print(line_break)
-    return True
+
+    if swapped_weapon == True:
+        return [True, weapon_choice]
+
+    else:
+        return [True, False]
 
 
 def fight_boss(boss, weapon_choice, bonus_dam, armour):
@@ -814,8 +820,13 @@ def fight_human(human_enemy, weapon_choice, bonus_dam, armour):
                     enemy_damage = character[0][0]
 
                 if human_enemy.weapon == "hands":
-                    if character[0][0] > 10:
-                        enemy_damage = random.randint(10, character[0][0])
+                    if character[0][0] > 30:
+                        chance = random.randint(1, 2)
+                        if chance == 1:
+                            enemy_damage = random.randint(30, (character[0][0]//1.5))
+
+                        else:
+                            enemy_damage = random.randint(30, (character[0][0] // 1.25))
 
                     else:
                         enemy_damage = character[0][0]
@@ -967,7 +978,6 @@ def fight(num, battle, boss=None):
 
     if total_armour != 0:
         print("\nYou have",total_armour,"armour")
-
     if battle == "zombies":
         descriptor = zom_description_list[random.randint(0,len(zom_description_list)-1)]
         loot = item_list[random.randint(0,len(item_list) - 1)]
@@ -984,11 +994,17 @@ def fight(num, battle, boss=None):
             elif zombie == "a zombie":
                 zombie = z.Zombie(100,zombie[2:],descriptor,loot)
             chance = random.randint(1, 10)
-            if chance == 1:
-                print("\nAs you prepare to fight, you notice this zombie", zombie.appearance)
+
+            if boss == None:
+                if chance == 1:
+                    print("\nAs you prepare to fight, you notice this zombie", zombie.appearance)
+
+                else:
+                    print()
 
             else:
-                print()
+                print("Before you attack, you apologise to", boss, "wishing you had saved him...")
+
             result= fight_zombie(zombie, weapon_choice, bonus_dam)
             fight_list.remove(fight_list[0])
             if result:
@@ -1008,12 +1024,16 @@ def fight(num, battle, boss=None):
 
             zombie = z.Zombie(150, zombie, descriptor, loot)
 
-            chance = random.randint(1, 10)
-            if chance == 1:
-                print("\nAs you prepare to fight, you notice this military zombie", zombie.appearance)
+            chance = random.randint(1, 5)
+            if boss == None:
+                if chance == 1:
+                    print("\nAs you prepare to fight, you notice this military zombie", zombie.appearance)
+
+                else:
+                    print()
 
             else:
-                print()
+                print("Before you attack, you stop and thank", boss, "for what he did for you...")
 
             result = fight_zombie(zombie, weapon_choice, bonus_dam)
             fight_list.remove(fight_list[0])
@@ -1639,11 +1659,51 @@ def cook_food():
                     character[3].remove(i)
 
                 character[3].append(recipe)
-                print("\nNice,",recipe,"has been added to your items\n")
+                print("Nice,",recipe,"has been added to your items\n")
 
 
                 if character[7][0] == "restaurant":
-                    print("Since you're cooking at the restaurant, your food is a little better than expected")
+                    print("Since you're cooking at the restaurant, your food is a little better than expected\n")
+
+
+def take_rest():
+    print("You'll be taking some rest today")
+
+    if len(afflictions) > 0 or character[0][0] < 100:
+        if len(afflictions) > 0:
+            print("You lie down and try get some sleep")
+            print("Hopefully your", medical_prompt, "will heal and you'll be able to go out tomorrow\n")
+
+            if character[7][0] == "house":
+                print("Since you're resting in your comfy bed, you should have a better chance of healing")
+
+            for i in afflictions:
+                if character[7][0] == "house":
+                    chance = random.randint(1, 2)
+
+                else:
+                    chance = random.randint(1, 3)
+                if chance == 1:
+                    print("Your", i, "has healed")
+                    afflictions.remove(i)
+
+                else:
+                    print(print("Your", i, "hasn't healed"))
+
+        if character[0][0] < 100:
+            chance = random.randint(1, 2)
+            if chance == 1:
+                HP_healed = random.randint(1, 25)
+                print("You gained", HP_healed, "HP")
+                character[0][0] += HP_healed
+
+                if character[0][0] > 100:
+                    character[0][0] = 100
+
+                print("You now have", character[0][0], "/ 100 HP")
+
+    else:
+        print("You don't quite know why you chose to rest today, but everyone deserves a day off...")
 
 
 username = input("Enter your Username: ")
@@ -1664,7 +1724,7 @@ while game:
         print("You're driving home from work when the radio is interrupted by an emergency broadcast")
         print("The government is warning of a disease which makes the dead come back to life and attack the living\n")
         print("You realise you need to find shelter")
-        print("Will you:\n1. Make your way home, but closer to the city\n2. Get back to the restaurant you work in\n3. Drive to the forest nearby and camp out in your car")
+        print("Will you:\n1. Make your way home, but closer to the city\n2. Get back to the restaurant you work at\n3. Drive to the forest nearby and camp out in your car")
         choice = make_choice()
 
         if choice == 1:
@@ -1748,7 +1808,8 @@ while game:
             if len(character[3]) == 0 and eat == True:
                 print("You have no food")
 
-        print("\nYou close your eyes and go to sleep")
+        print("You close your eyes and go to sleep")
+        input("\nPress 1 to continue to Day "  + str((day + 1)) + ": ")
         days_no_water = 0
 
     elif day > 1:
@@ -1994,14 +2055,14 @@ while game:
                                         print("He thanks you as you have saved his life")
                                         print("He promises to try help you in the future")
                                         survivor_group = [survivor1]
-                                        friends.append(survivor_group)
+                                        character[6].append(survivor_group)
                                         print(survivor1, "is now your Friend")
 
                                     elif human_amount > 1:
                                         print("They thank you as you have saved", survivor1 + "'s", "life")
                                         print("They promise to try help you in the future")
                                         survivor_group = [survivor1, survivor2]
-                                        friends.append(survivor_group)
+                                        character[6].append(survivor_group)
                                         print(survivor1, "and", survivor2, "are now your Friends")
 
                                     print("\nWith this good deed, you say goodbye and head on your way\n")
@@ -2238,7 +2299,7 @@ while game:
 
                         if game:
                             print("You make it to the undamaged fuel tanks and find:")
-                            random_item(3,6,"normal","fuel")
+                            random_item(5,8,"normal","fuel")
 
                     elif location == "Trader's Hideout":
                         print("You enter the", location, "and find the Trader himself waiting for you\n")
@@ -2453,7 +2514,10 @@ while game:
         elif choice == 1 and len(afflictions) == 0:
             area = areas[random.randint(0,len(areas)-1)]
             print("You decide to go scavenge in",area,"today")
-            chance = random.randint(1,6)
+            chance = random.randint(1,12)
+
+            if day == 6:
+                chance = 7
 
             if chance == 1:
                 zom_chance = random.randint(1,5)
@@ -2519,11 +2583,7 @@ while game:
 
                         if fight_result:
                             zombies_killed += 1
-                            print("\nWith the zombie dead you hurry home, shaken but glad you only had to fight one")
-                            chance = random.randint(1,2)
-                            if chance == 1:
-                                print("You find some water on your way home, enough for today")
-                                water_drank = True
+                            print("With the zombie dead you hurry home, shaken but glad you only had to fight one")
 
                         else:
                             game = False
@@ -2554,8 +2614,6 @@ while game:
                             afflictions.append("sprained ankle")
                             print("You now have", character[0][0], "HP")
                             print("Defeated, you hobble back to the", character[7][0])
-                            print("You find some water on your way home, enough for today")
-                            water_drank = True
 
                 elif choice == 3:
                     print("You find a fire escape on the side of one of the buildings overlooking the street and climb up")
@@ -2607,8 +2665,6 @@ while game:
                                     print("But in the process you lose your",lost_weapon)
                                     character[4].remove(lost_weapon)
                                 print("When you get home to the",character[7][0],"you're just happy you're alive")
-                                print("You find some water on your way home, enough for today")
-                                water_drank = True
 
                             elif chance == 2:
                                 print("You slip as you try desperately to get away, and are pulled into the horde...\nYOU ARE DEAD")
@@ -2623,8 +2679,6 @@ while game:
                         if chance == 1:
                             print("But your quick reflexes allow you to get away before a horde arrives")
                             print("Still terrified you sprint all the way home to the",character[7][0])
-                            print("You find some water on your way home, enough for today")
-                            water_drank = True
 
                         elif chance == 2:
                             print("You jump back, hitting your head on the door frame and cutting it open")
@@ -2644,8 +2698,6 @@ while game:
                         print("There's no way through")
                         print("\nYou turn to try the front door but a horde is coming down the street, it's too late now")
                         print("You make your way back to the",character[7][0],"wondering what might have been")
-                        print("You find some water on your way home, enough for today")
-                        water_drank = True
 
                     elif chance == 2:
                         print("You check the back, and there is indeed an unlocked door through to the store")
@@ -2682,13 +2734,11 @@ while game:
 
                         if choice == 2:
                             print("\nSensibly, you decide all this rubble is too dangerous and head home to the",character[7][0])
-                            print("You find some water on your way home, enough for today")
-                            water_drank = True
 
                 elif choice == 3:
                     chance = random.randint(1,3)
                     if chance == 1:
-                        print("\nAs you go to smash the glass with your",character[4][-1],"you notice a spark plug on the ground")
+                        print("As you go to smash the glass with your",character[4][-1],"you notice a spark plug on the ground")
                         print("Thinking quickly, you throw it at the window")
                         chance = random.randint(1,2)
                         if chance == 1:
@@ -2700,14 +2750,12 @@ while game:
                         elif chance == 2:
                             print("The glass shatter perfectly, but suddenly the alarm blares")
                             print("A horde of zombies appears but you hide behind a car, far away after your throw")
-                            print("You thank your quick thinking and head home to the",character[7])
-                            print("You find some water on your way home, enough for today")
-                            water_drank = True
+                            print("You thank your quick thinking and head home to the",character[7][0])
 
                     elif chance == 2:
                         print("You crack the glass with your weapon, but it's too loud and zombies start to appear from all around")
                         print("You can't risk looting the shop now with all these zombies nearby")
-                        print("Cursing your stupidity you jog back to the",character[7][0],", sure to lose the zombies on your tail")
+                        print("Cursing your stupidity you jog back to the",character[7][0] + ",", "sure to lose the zombies on your tail")
 
                     elif chance == 3:
                         print("You bring your weapon down hard on the glass, but it shatters and cuts your hand")
@@ -2752,7 +2800,7 @@ while game:
 
                     if choice == 1:
                         chance = random.randint(1,2)
-                        print("\nYou sneak behind a car and grab a rock from the pavement")
+                        print("You sneak behind a car and grab a rock from the pavement")
                         if chance == 1:
                             print("You throw the rock as far as you can and it strikes a window down the street")
                             print("The horde of zombies lift their heads as one, and trundle towards the sound")
@@ -2775,11 +2823,8 @@ while game:
                                 print("\nHappy with today's score, you head home, wishing every day was like this")
 
                             elif chance == 2:
-                                print("Looks like the horde got to the van first, but it was worth a try")
+                                print("But it looks like the horde got to the van first")
                                 print("Disappointed, you head back to the",character[7][0])
-                                print("You find some water on your way home, enough for today")
-                                water_drank = True
-
 
                         elif chance == 2:
                             print("You throw the rock and the window smashes, but suddenly the alarm blares, this is way too loud!")
@@ -2958,8 +3003,6 @@ while game:
                     print("As you leave the",character[7][0],"to head towards",area,"a huge horde of",zombies,"zombies walks in front of you")
                     print("You manage to avoid them and get away without being seen")
                     print("But you won't be able to scavenge in",area,"today")
-                    print("You find some water on your way home, enough for today")
-                    water_drank = True
 
                     print("\nDespite your difficulties, you still manage to scrape up something:")
                     random_item(1, 3, "normal")
@@ -3165,17 +3208,11 @@ while game:
                     print("It's a close call, and you can't risk scavenging out here today")
                     print("You'll have to head home and try tomorrow")
 
-                    chance == random.randint(1, 2)
-
-                    if chance == 1:
-                        print("You find some water on your way back, enough for today")
-                        water_drank = True
-
                     print("\nDespite your difficulties, you still manage to scrape up something:")
                     random_item(1, 3, "normal")
 
             elif chance == 6:
-                chance = random.randint(1, 2)
+                chance = random.randint(1, 3)
 
                 if chance == 1:
                     print("You're exploring", area, "when a small office building catches your eye")
@@ -3261,67 +3298,562 @@ while game:
                     print("You manage to stay out of sight, but you'll have to head home")
                     print("\nDespite your difficulties, you still manage to scrape up something:")
                     random_item(1, 3, "normal")
+
+            elif chance == 7 and day > 5:
+                print("As you walk through", area, "you begin to notice the signs of another survivor")
+                print("You spot some footprints leading off your usual path, and down a dark side street...")
+                print("Will you:\n1. Follow the footprints\n2. Head home")
+                choice = make_choice()
+
+                if choice == 1:
+                    possible_hideouts = ["looted gunstore", "burnt out police station", "dismal house"]
+                    chance = random.randint(1,3)
+
+                    survivor_hideout = possible_hideouts[chance - 1]
+
+                    print("You choose to follow the footprints and set off after this survivor")
+                    print("Sticking to the shadows, you follow the trail to a", survivor_hideout)
+                    print("You sneak up and take a look through the window")
+
+                    survivor_type = random.randint(1,3)
+                    infected_survivor = random.randint(1, 2)
+
+                    if survivor_type != 1:
+                        if survivor_type == 2:
+                            human = "raider"
+
+                        else:
+                            human = "survivor"
+
+                        print("As your eyes adjust, you notice there's someone inside!")
+                        print(describe_human(human, 1))
+                        print("\nWill you:\n1. Approach them\n2. Attack them")
+                        choice = make_choice()
+
+                        if choice == 1:
+                            print("You take a deep breath, then stand up and walk in the door")
+
+                            if human == "raider":
+                                print("It's a raider!")
+                                chance = random.randint(1, 2)
+
+                                if chance == 1:
+                                    print("But to your surprise, the raider doesn't attack you")
+                                    print("It looks like he's badly injured and can barely walk")
+
+                                    raider_name = survivors_male_list[random.randint(0, len(survivors_male_list) - 1)]
+
+                                    print("\nHe raises his hands and introduces himself as", raider_name)
+                                    print("You keep your guard up, but he quickly informs you he's not interested in a fight")
+                                    print("He tells you he got this wound from another raider after abandoning his group")
+                                    print(raider_name, "asks for medicine, but realises you may not forgive his past...")
+
+                                    if len(character[5]) > 0:
+                                        print("Will you:\n1.Give", raider_name, "some medicine\n2.Refuse")
+                                        choice = make_choice()
+
+                                        if choice == 1:
+                                            print("You choose to help", raider_name)
+                                            print("Click the corresponding button to select an item")
+                                            print("You have:")
+                                            count = 1
+                                            for i in character[5]:
+                                                print(str(count) + ". " + i)
+                                                count += 1
+                                            choice = make_choice()
+                                            print("You give him the", character[5][choice - 1])
+                                            character[5].remove(character[5][choice - 1])
+
+                                            print(raider_name, "thanks you as you have saved his life")
+                                            print("He promises to make right with this second chance")
+                                            survivor_group = [raider_name]
+                                            character[6].append(survivor_group)
+                                            print(raider_name, "is now your Friend")
+
+                                            print("\nWith this good deed, you say goodbye and head on your way home")
+
+                                        elif choice == 2:
+                                            print(raider_name, "looks at you with sad understanding")
+                                            print("You turn and leave him to his fate, he will not last long...\n")
+
+                                    else:
+                                        print("But you don't have any medicine and you cannot help")
+                                        print("You explain this to him and he nods, accepting his fate")
+                                        print("With nothing more to do or say, you leave him to die...\n")
+
+                                else:
+                                    print("He snarls and glares at you")
+                                    print("Looks like there'll be no negotiations here...")
+                                    result = fight(1, "humans")
+
+                                    if result:
+                                        print("With this fight over, you're free to take a look around the", survivor_hideout)
+                                        print("Looks like the raider had a stash of food:")
+                                        random_item(2, 5, "normal", "food")
+                                        print("\nWith the food in your bag you head home, wondering if things could have gone differently")
+
+                                    else:
+                                        game = False
+
+                            elif human == "survivor":
+                                print("You walk in and their head jolts towards you")
+                                print("Looks like they're a survivor")
+                                print("You quickly explain you mean no harm, and the survivor concurs")
+
+                                survivor_name = survivors_male_list[random.randint(0, len(survivors_male_list) - 1)]
+
+                                print("He shakes your hand and introduces himself as", survivor_name)
+
+                                if infected_survivor == 1:
+                                    print("But he looks ill and it seems like he's injured")
+
+                                else:
+                                    print("But it seems like he's injured")
+
+                                choice_line = "\nWill you:\n1. Ask about his wound"
+
+                                if len(character[5]) > 0:
+                                    choice_line += "\n2. Offer him some medicine"
+
+                                print(choice_line)
+                                choice = make_choice()
+
+                                if choice == 2:
+                                    print("You choose to offer medicine to", survivor_name)
+                                    print("Click the corresponding button to select an item")
+                                    print("You have:")
+                                    count = 1
+                                    for i in character[5]:
+                                        print(str(count) + ". " + i)
+                                        count += 1
+                                    choice = make_choice()
+
+                                    chosen_meds = character[5][choice - 1]
+                                    print("You give him the", chosen_meds)
+                                    character[5].remove(chosen_meds)
+
+                                    if infected_survivor == 1:
+                                            print("\nBut he looks at you strangely, the", chosen_meds, "may not be able to heal him")
+                                            print("Suddenly he collapses to the ground in front of you and lays still")
+                                            print("\nWill you:\n1. Check if he's ok\n2. Back away")
+
+                                            if choice == 1:
+                                                print("You kneel beside", survivor_name, "and check his pulse")
+                                                print("Your heart drops, he's dead!")
+                                                print("But getting up off the floor, something catches your eye")
+                                                print(survivor_name + "'s", "eyes are wide open and staring at you!")
+                                                print("He dives and tackles you, he must have been infected!")
+
+                                                if len(character[4][0]) > 1:
+                                                    chance = random.randint(1,4)
+
+                                                    weapon = character[4][random.randint(1, len(character[4]) -1)]
+
+                                                    count = 20
+                                                    while weapon == "**assault rifle**" or weapon == "*pistol*" or count > 0:
+                                                        weapon = character[4][random.randint(1, len(character[4]) - 1)]
+                                                        count -= 1
+
+                                                else:
+                                                    chance = random.randint(1,2)
+                                                    weapon = "hands"
+
+                                                if chance == 1:
+                                                    if weapon == "hands":
+                                                        print("You try push him off with your hands, but it's no use!")
+                                                        print("He overpowers you and bites...\nYOU DIED")
+
+                                                    else:
+                                                        print("You try push him back with your", weapon, "but there's not enough space!")
+                                                        print("He bites your arm and you shout in pain, before he lunges for your neck...\nYOU DIED")
+
+                                                    game = False
+
+                                                else:
+                                                    if weapon == "hands":
+                                                        print("In a superhuman effort you heave his body off of you")
+                                                        print("He rolls back and jumps again, but you catch him with a kick to the ribs")
+                                                        print("He falls to the ground again and this time you stomp down, ending the fight...")
+
+                                                    else:
+                                                        print("He opens his mouth wide to bite you, but you stop his teeth with your", weapon)
+                                                        print("Recoiling back, he swipes at you and misses")
+                                                        print("You use this oppurtunity to put him down with your", weapon, "this time he won't get back up...")
+
+                                            else:
+                                                print("You back away from", survivor_name, "as he lies still on the ground")
+                                                print("You can barely hear over your heartbeat, as you battle the urge to help him")
+                                                print("Suddenly he twitches, and slowly gets back up")
+
+                                                print("\nBut as he turns to look at you, you realise this isn't", survivor_name, "anymore...")
+                                                result = fight(1, "zombies")
+
+                                                if not result:
+                                                    game = False
+
+                                            if game:
+                                                print("\n Shaken but alive, you search his body, retrieving your", chosen_meds, "and finding:")
+                                                random_item(1, 3, "normal")
+                                                print("\n You return home to the", character[7][0], "but vow to be more cautious next time...")
+
+                                    else:
+                                        print(survivor_name, "thanks you for your generosity")
+                                        print("He promises to pay you back someday, and shakes your hand again")
+                                        survivor_group = [survivor_name]
+                                        character[6].append(survivor_group)
+                                        print(survivor_name, "is now your Friend")
+
+                                        print("\nWith this done, you say goodbye and head on your way home")
+
+                                else:
+                                    print("You ask", survivor_name,"about his appearance mentioning your concerns about a wound")
+
+                                    if infected_survivor == 1:
+                                        print("He mutters something about a fall while scavenging for food")
+                                        print("He seems feverish and could use some medical help")
+
+                                        print("\nWill you:\n1. Check your bag for medical supplies\n2. Reach for a weapon")
+                                        choice = make_choice()
+
+                                        if choice == 1:
+                                            print("You tell him you can help him, and he looks at you in thinly veiled disbelief")
+                                            print("You place your bag down and begin to rummage through it for meds")
+                                            print("But when you look back up he's disappeared")
+                                            print("It seems he's run to a room in the back of the", survivor_hideout)
+
+                                            print("\nWill you:\n1. Go make sure he's ok\n2. Leave the",survivor_hideout)
+                                            choice = make_choice()
+
+                                            if choice == 1:
+                                                print("You notice a door slightly ajar, but it's gloomy in here and the electricity is gone out")
+                                                print("You call out", survivor_name + "'s", "name, and get no response...")
+                                                print("You push the door open and see him standing in the dim light")
+                                                print("But it's not him anymore...")
+                                                result = fight(1, "zombies")
+
+                                                if result:
+                                                    print("With the zombie dead you breathe a sigh of relief")
+                                                    print("\n Shaken but alive, you search his body, finding:")
+                                                    random_item(1, 3, "normal")
+
+                                                    print("\n You return home to the", character[7][0], "but vow to be more cautious next time...")
+
+                                                else:
+                                                    game = False
+
+                                            else:
+                                                print("You're not taking any chances, and you take this opportunity to run for the door")
+                                                print("As you make your way home, you wonder what might have really happened to him...")
+                                                zombie_survivors.append(survivor_name)
+
+                                        else:
+                                            print("You make eye contact and he looks at you with an almost feral gaze")
+
+                                            if len(character[4][0]) > 1:
+                                                weapon = character[4][random.randint(1, len(character[4]) - 1)]
+                                                print("You grab for your", weapon, "and he shrieks and runs")
+
+                                            else:
+                                                print("You raise your hands and prepare to fight")
+                                                print("But instead of fighting he shrieks and runs")
+
+                                            print("He's surprisingly fast, and you can't land a hit on him")
+                                            print("Kicking open the back door, he dashes out of sight and away from you")
+                                            print("\nThis escapade has made a lot of noise and to chase him would be too risky")
+                                            print("You decide to head back to the", character[7][0], "wondering what he was hiding...")
+                                            zombie_survivors.append(survivor_name)
+
+                                    else:
+                                        chance = random.randint(1, 2)
+                                        if chance == 1:
+                                            print("He nods and tells you about his narrow escape with a group of masked soldiers")
+                                            print("Lifting up his shirt, he shows you a bleeding gash, presumably left by a bullet")
+
+                                        else:
+                                            print("He nods and tells you about his narrow escape with a group of raiders")
+                                            print("Lifting up his shirt, he shows you a deep slash, presumably left by a raider's machete")
+
+                                        print("He notices your expression, and begs you for medical supplies")
+                                        if len(character[5]) > 0:
+                                            print("Will you:\n1.Give", survivor_name, "some medicine\n2.Refuse")
+                                            choice = make_choice()
+
+                                            if choice == 1:
+                                                print("You choose to help", survivor_name)
+                                                print("Click the corresponding button to select an item")
+                                                print("You have:")
+                                                count = 1
+                                                for i in character[5]:
+                                                    print(str(count) + ". " + i)
+                                                    count += 1
+                                                choice = make_choice()
+                                                print("You give him the", character[5][choice - 1])
+                                                character[5].remove(character[5][choice - 1])
+
+                                                print(survivor_name, "thanks you as you have saved his life")
+                                                print("He promises to return the favour if he sees you again")
+                                                survivor_group = [survivor_name]
+                                                character[6].append(survivor_group)
+                                                print(survivor_name, "is now your Friend")
+
+                                                print("\nWith this good deed, you say goodbye and head on your way home")
+
+                                            elif choice == 2:
+                                                print(survivor_name, "looks at you with a mix of shock and fear")
+                                                print("You turn and leave as he begs you again, he will not last long...\n")
+
+                                        else:
+                                            print("But you don't have any medicine and you cannot help")
+                                            print("You explain this to him and tears appear in his eyes")
+                                            print("With nothing more to do or say, you leave him alone in the", survivor_hideout, "...")
+
+                        else:
+                            print("You take a deep breath, then burst through the door")
+
+                            chance = random.randint(1, 2)
+
+                            if chance == 1:
+                                if len(character[4][0]) > 1:
+                                    weapon = character[4][random.randint(1, len(character[4]) - 1)]
+
+                                else:
+                                    weapon = "fists"
+
+                                print("Taking them by surprise you land a lucky hit with your", weapon, "knocking them down")
+                                print("You follow up with another, and they lie still and dead")
+
+                                if human == "survivor":
+                                    print("You check the body and it looks like he was just an injured survivor")
+
+                                    if infected_survivor == 1:
+                                        print("But on closer inspection, it looks like he was bitten and infected")
+                                        print("Maybe it's for the better that you put him down")
+
+                                elif human == "raider":
+                                    print("You check the body and it looks like he was a raider")
+                                    print("Good thing you took him out")
+
+                            else:
+                                print("But when you enter the", survivor_hideout, "they're looking right at you!")
+
+                                if human == "survivor":
+                                    print("They're just a survivor, but now you'll have to fight them to the death...")
+
+                                elif human == "raider":
+                                    print("They're a raider, and raiders are always ready to fight!")
+
+                                result = fight(1, "humans")
+
+                                if result:
+                                    if human == "survivor":
+                                        print("You've won the battle, and now another survivor lies dead")
+
+                                        if infected_survivor == 1:
+                                            print("As you go to check his corpse, you find an infected bite")
+                                            print("There isn't much he could have done anyway")
+
+                                else:
+                                    game = False
+
+                            if game:
+                                print("On his corpse you find:")
+                                random_item(0, 1, "special")
+                                random_item(1, 4, "normal")
+
+                                print("\nYou fill your bag, and head home...")
+
+                    else:
+                        print("It looks like there's a dead survivor on the floor!")
+                        print("\nWill you:\n1. Go and check the body\n2. Leave the", survivor_hideout, "alone")
+                        choice = make_choice()
+
+                        if choice == 1:
+                            print("The door creaks as you push it open and step inside")
+                            print("The room is dimly lit, shadows playing tricks on your mind")
+                            print("As you check your surroundings, you start wishing this survivor had picked a better place to die\n")
+                            if infected_survivor == 1:
+                                print("When your gaze settle on the body again, a wave of cold fear washes over you")
+                                print("It's standing up, and it's shuffling towards you")
+                                print("Looks like it wasn't quite dead after all...\n")
+
+                                zombies = random.randint(2,4)
+                                print("You try and make a run for it, but", zombies, "more zombies have blocked your path")
+                                print("This is going to be a tough fight")
+
+                                result=fight(zombies, "zombies")
+
+                                if result:
+                                    print("With the zombies dead, you're free to take a look around the room")
+                                    print("You spot the dead survivor's backpack, and inside you find:")
+                                    random_item(0, 1, "special")
+                                    random_item(3, 6, "normal")
+
+                                else:
+                                    game = False
+
+                            else:
+                                print("You go and check the body, it seems he died recently")
+                                print("As you check his pockets, you think about what type of person he could have been")
+                                print("You find nothing there, but spot a backpack in the corner")
+                                print("Inside the backpack you find:")
+                                random_item(3, 5, "normal")
+
+                            print("With this, you head back home to the", character[7][0])
+
+            elif chance == 8:
+                if len(zombie_survivors) > 0:
+                    print("You make your way into", area + ",", "while keeping low and quiet")
+                    print("You duck out of sight as a horde passes close by, but they're not looking for you")
+
+                    survivor_amount = random.randint(1, 2)
+
+                    if survivor_amount == 1:
+                        survivor = "survivor"
+
+                    else:
+                        survivor = "pair of survivors"
+
+                    print("You look to the end of the street and see a", survivor, "desperately running away")
+                    print("\nWill you:\n1. Try help the survivors\n2. Ignore them")
+                    choice = make_choice()
+
+                    if choice == 1:
+                        print("You decide to at least try help the", survivor, "escape")
+                        print("You circle around, trying to get ahead of the horde")
+                        print("But you're not quick enough, and a zombie stumbles out in front of you")
+
+                        named_zombie_group = zombie_survivors[random.randint(0, len(zombie_survivors) - 1)]
+                        named_zombie = named_zombie_group[0]
+
+                        if len(named_zombie_group) > 1:
+                            missing_friend = True
+                            named_zombie2 = named_zombie_group[1]
+
+                        print("\nIt's", named_zombie + "!")
+                        if missing_friend:
+                            print("Looks like", named_zombie2, "isn't here, though he probably met a similar fate...")
+                            chance = random.randint(1, 2)
+
+                            if chance == 1:
+                                ex_friend_group = []
+                                ex_friend_group.append(named_zombie2)
+                                ex_friend_group.append(named_zombie)
+                                ex_friends.append(ex_friend_group)
+
+                        print("You look at him sadly, remembering when you last spoke to him")
+                        print("But he doesn't share the same sentiment and shuffles towards you...")
+                        fight_result = fight(1, "zombies", named_zombie)
+
+                        if fight_result:
+                            zombie_survivors.remove(named_zombie_group)
+                            print("You look at", named_zombie, "for the last time, but it's time to go")
+                            print("You've still got a job to do")
+
+                            chance = random.randint(1, 3)
+
+                            if survivor_amount == 1:
+                                print("You run onto the street with the horde right in front of you")
+                                print("But the survivor is still alive!")
+                                print("You spot a zombie sneaking up behind him as he retreats")
+                                print("And you take it out, joining his side")
+
+                                survivor_name = survivors_male_list[random.randint(0, len(survivors_male_list) - 1)]
+                                print("\nHe smiles, glad to see a friendly face, and introduces himself as", survivor_name)
+                                print("But the fight isn't over yet, you'll each have to cut through the horde")
+                                print("You nod at eachother, then each make a dash for weakspots in the wall zombies!")
+
+                                zombies = random.randint(3, 8)
+                                fight_result = fight(zombies, "zombies")
+
+                                if fight_result:
+                                    print("Somehow you manage to battle through the horde unscathed")
+                                    print("You dash forward, then spin around to look for", survivor_name)
+                                    chance = random.randint(1, 2)
+
+                                    if chance == 1:
+                                        print("\nHe appears from the horde and you cheer, but celebration doesn't last long")
+                                        print("A hand grabs his ankle and teeth close around his leg, before he's pulled in, never to be seen again")
+                                        print("You shout meaningless words at the horde, as the futility of your good deed tears at your heart")
+                                        print("You run all the way home, not wanting to think about", survivor_name, "ever again...")
+
+                                    else:
+                                        print("\nHe suddenly rolls out of the horde, dodging the sea of hands grabbing at him")
+                                        print("He races up beside you and give you a high-five")
+                                        print("As the two of you make your escape, he thanks you for saving him")
+                                        print("Before he goes, he promises to repay you for this good deed someday")
+
+                            else:
+                                print("You run out onto the street, with the horde pouring towards you")
+                                print("But just in front are the two survivors!")
+                                print("It looks like one of them has sprained their ankle, and the zombies are catching up")
+
             else:
-                chance = random.randint(1,5)
+                chance = random.randint(1,7)
                 if chance == 1:
-                    print("You decide to be careful today, no going too deep in the city for for now")
+                    print("As you journey towards", area, "you get an unsettling feeling in your gut")
+                    print("You decide to tread carefully today, avoiding", area, "for now")
+                    print("Better than to risk a fatal mistake")
                     print("Maybe tomorrow...")
 
                 elif chance == 2:
-                    print("It's too foggy to search for long today, you can't risk a horde sneaking up on you")
+                    print("It's too foggy to search for long, you can't risk a horde sneaking up on you")
                     print("Better safe than sorry...")
 
                 elif chance == 3:
-                    print("You decide against scavenging for too long today, there seems to be a lot of horde activity")
+                    print("You don't scavenge for too long today, there seems to be a lot of undead activity")
                     print("Seems to be getting worse...")
-                    print("You find some water on your way home, enough for today")
-                    water_drank = True
 
                 elif chance == 4:
-                    print("Today your fear of being eaten beats out your hunger, a bit more food isn't worth dying for")
+                    print("As you cross through a park on your way, you hear a horde nearby")
+                    print("The sounds of moaning and shuffling remind you that your survival depends on more than just calories")
+                    print("With that, your fear of being eaten beats out your hunger")
                     print("For now at least...")
+
+                elif chance == 5:
+                    chance = random.randint(1, 8)
+
+                    if chance == 1:
+                        print("One of your usual paths is a bridge across the nearby river, but it looks to have collapsed")
+                        print("Upon closer inspection it seems someone blew it up during the night")
+                        print("You're frustrated, but can't help but wonder what their motives were...")
+
+                    elif chance == 2:
+                        survivor_num = random.randint(3, 15)
+                        print("You've nearly reached", area, "when a group of", survivor_num, "raggedy survivors race out of a nearby building")
+                        print("You duck into cover trying to remain unseen, just as they're cornered by a squad of soldiers in gas masks\n")
+                        print("You're too far away to hear much but the survivors appear to be trying to reason")
+                        print("Suddenly the leader of the soldiers barks an order, and his men raise their guns")
+                        print("You watch in sudden horror as the survivors are gunned down in cold blood, and their bodies searched")
+                        print("The soldiers set the corpses alight, and you use the distraction to make your escape...")
+
+                    else:
+                        print("It rained heavily last night, and when you arrive at", area, "a flood has made the streets impassable")
+                        print("Bodies float on the waters surface, and you don't even want to think about what lies below...")
+                        print("You'll have to head home for today, but the flood should clear up soon")
+
+                elif chance == 6:
+                    print("You hear voices arguing up ahead, and while making sure to stay hidden, you take a look\n")
+                    print("You peek over an overturned truck and see a two groups of raiders arguing!")
+                    print("It looks like they were waiting to ambush unsuspecting survivors, but couldn't decide who gets what")
+                    print("You count yourself thankful for their incompetence, and head home")
 
                 else:
                     print("You saw a huge shadow go by in the night, you'd want to lay low until it's definitely gone")
+                    print("You won't go far today, no reason to attract unnecessary attention")
                     print("Whatever it was...")
-                    print("You find some water on your way home, enough for today")
-                    water_drank = True
 
                 print("\nDespite your difficulties, you still manage to scrape up something:")
                 random_item(1,3,"normal")
 
+            if game:
+                water_chance = random.randint(1,3)
+
+                if water_chance == 1 and character[7][0] != "campground clearing":
+                    print("\nYou find some water on your way home, enough for today")
+                    water_drank = True
+
         elif choice == 3:
-            print("You decide to take some rest today")
-            if len(afflictions) > 0:
-                print("You lie down and try get some sleep")
-                count = 0
-                medical_prompt = ""
-                for i in afflictions:
-                    if count == 0:
-                        medical_prompt += i
-
-                    elif count + 1 == len(afflictions):
-                        medical_prompt += " and a " + i
-
-                    else:
-                        medical_prompt += ", " + i
-
-                        count += 1
-                print("hopefully your", medical_prompt, "will heal and you'll be able to go out tomorrow")
-
-                if character[7][0] == "house":
-                    print("Since you're resting in your comfy bed, you should have a better chance of healing")
-
-                for i in afflictions:
-                    if character[7][0] == "house":
-                        chance = random.randint(1, 2)
-
-                    else:
-                        chance = random.randint(1, 3)
-
-                    if chance == 1:
-                        print("Your", i, "has healed")
-                        afflictions.remove(i)
+            take_rest()
 
         elif len(afflictions) > 0:
             count = 0
@@ -3342,36 +3874,7 @@ while game:
             print("What will you choose to do?\n1. Take some rest")
             choice = make_choice()
 
-            if choice == 1:
-                print("You'll have to take some rest today")
-                if len(afflictions) > 0:
-                    print("You lie down and try get some sleep")
-                    print("Hopefully your",medical_prompt,"will heal and you'll be able to go out tomorrow\n")
-
-                    if character[7][0] == "house":
-                        print("Since you're resting in your comfy bed, you should have a better chance of healing")
-
-                    for i in afflictions:
-                        if character[7][0] == "house":
-                            chance = random.randint(1, 2)
-
-                        else:
-                            chance= random.randint(1,3)
-                        if chance == 1:
-                            print("Your",i,"has healed")
-                            afflictions.remove(i)
-
-                if character[0][0] < 100:
-                    chance = random.randint(1, 2)
-                    if chance == 1:
-                        HP_healed = random.randint(1, 25)
-                        print("You gained", HP_healed, "HP")
-                        character[0][0] += HP_healed
-
-                        if character[0][0] > 100:
-                            character[0][0] = 100
-
-                        print("You now have", character[0][0], "/ 100 HP")
+            take_rest()
 
         if game:
             count= 0
@@ -3395,7 +3898,7 @@ while game:
                 if medical_prompt != "":
                     print(medical_prompt)
 
-                if character[0][0] < 100:
+                if character[0][0] < 100 or len(afflictions) > 0:
                     print("You have", character[0][0], "HP")
                 print("Would you like to heal your wounds?\n1. Yes\n2. No")
                 choice = make_choice()
@@ -3410,87 +3913,91 @@ while game:
                         if character[0][0] < 100:
                             print(str(count) + ". " + "HP at " + str(character[0][0]))
 
+                        print(str(count + 1) + ". Don't heal anything")
+
                         heal_choice = make_choice()
-                        print("\nWhat item will you use?")
-                        if heal_choice!= count or character[0][0] == 100:
-                            count= 1
-                            for i in character[5]:
-                                if i == "bandages":
-                                    heal_chance= "75%"
 
-                                elif i == "first aid kit":
-                                    heal_chance= "100%"
+                        if heal_choice != count + 1:
+                            print("\nWhat item will you use?")
+                            if heal_choice!= count or character[0][0] == 100:
+                                count= 1
+                                for i in character[5]:
+                                    if i == "bandages":
+                                        heal_chance= "75%"
 
-                                elif i == "painkillers":
-                                    heal_chance= "50%"
-                                print(str(count) + ". " + i + " - chance of healing " + heal_chance)
-                                count += 1
+                                    elif i == "first aid kit":
+                                        heal_chance= "100%"
 
-                            choice = make_choice()
+                                    elif i == "painkillers":
+                                        heal_chance= "50%"
+                                    print(str(count) + ". " + i + " - chance of healing " + heal_chance)
+                                    count += 1
 
-                            if character[5][choice - 1] == "bandages":
-                                chance = random.randint(1,4)
-                                print("Your", afflictions[heal_choice - 1], "has been bandaged")
+                                choice = make_choice()
 
-                                if chance != 1:
-                                    print("Your",afflictions[heal_choice-1],"has been healed")
-                                    afflictions.remove(afflictions[heal_choice - 1])
+                                if character[5][choice - 1] == "bandages":
+                                    chance = random.randint(1,4)
+                                    print("Your", afflictions[heal_choice - 1], "has been bandaged")
 
-                                else:
-                                    print("Your", afflictions[heal_choice - 1], "hasn't healed")
+                                    if chance != 1:
+                                        print("Your",afflictions[heal_choice-1],"has been healed")
+                                        afflictions.remove(afflictions[heal_choice - 1])
 
-                            elif character[5][choice - 1] == "painkillers":
-                                chance = random.randint(1, 2)
-                                print("You have taken some painkillers")
+                                    else:
+                                        print("Your", afflictions[heal_choice - 1], "hasn't healed")
 
-                                if chance != 1:
+                                elif character[5][choice - 1] == "painkillers":
+                                    chance = random.randint(1, 2)
+                                    print("You have taken some painkillers")
+
+                                    if chance != 1:
+                                        print("Your", afflictions[heal_choice - 1], "has been healed")
+                                        afflictions.remove(afflictions[heal_choice - 1])
+
+                                    else:
+                                        print("Your", afflictions[heal_choice - 1], "hasn't healed")
+
+                                elif character[5][choice - 1] == "first aid kit":
+                                    print("Your", afflictions[heal_choice - 1], "has been treated with a first aid kit")
+
                                     print("Your", afflictions[heal_choice - 1], "has been healed")
                                     afflictions.remove(afflictions[heal_choice - 1])
 
-                                else:
-                                    print("Your", afflictions[heal_choice - 1], "hasn't healed")
+                            else:
+                                count = 0
+                                for i in character[5]:
+                                    count += 1
+                                    if i == "bandages":
+                                        hp_healed = 50
 
-                            elif character[5][choice - 1] == "first aid kit":
-                                print("Your", afflictions[heal_choice - 1], "has been treated with a first aid kit")
+                                    elif i == "first aid kit":
+                                        hp_healed = 100
 
-                                print("Your", afflictions[heal_choice - 1], "has been healed")
-                                afflictions.remove(afflictions[heal_choice - 1])
+                                    elif i == "painkillers":
+                                        hp_healed = 25
+                                    print(str(count) + ". " + i + " - HP healed: " + str(hp_healed))
 
-                        else:
-                            count = 0
-                            for i in character[5]:
-                                count += 1
-                                if i == "bandages":
+                                choice = make_choice()
+
+                                if character[5][choice-1] == "bandages":
+                                    print("You have used some bandages")
                                     hp_healed = 50
 
-                                elif i == "first aid kit":
+                                elif character[5][choice-1] == "first aid kit":
+                                    print("You have used a first aid kit")
                                     hp_healed = 100
 
-                                elif i == "painkillers":
+                                elif character[5][choice-1] == "painkillers":
+                                    print("You have taken some painkillers")
                                     hp_healed = 25
-                                print(str(count) + ". " + i + " - HP healed: " + str(hp_healed))
 
-                            choice = make_choice()
+                                character[0][0] += hp_healed
+                                if character[0][0] > 100:
+                                    character[0][0] = 100
+                                    print("You gained", hp_healed, "HP")
 
-                            if character[5][choice-1] == "bandages":
-                                print("You have used some bandages")
-                                hp_healed = 50
-
-                            elif character[5][choice-1] == "first aid kit":
-                                print("You have used a first aid kit")
-                                hp_healed = 100
-
-                            elif character[5][choice-1] == "painkillers":
-                                print("You have taken some painkillers")
-                                hp_healed = 25
-
-                            character[0][0] += hp_healed
-                            if character[0][0] > 100:
-                                character[0][0] = 100
-                                print("You gained", hp_healed, "HP")
-
-                            print("You now have", character[0][0], "/ 100 HP")
-                            character[5].remove(character[5][choice -1])
+                                print("You now have", character[0][0], "/ 100 HP")
+                                character[5].remove(character[5][choice -1])
 
                     else:
                         print("You don't have any medicine")
@@ -3575,33 +4082,29 @@ while game:
                     print("You have no food")
 
             if character[2][0] == 0:
-                print("You're starving, find some food soon...")
-                print("\nYou have lost 5HP")
+                print("You are now starving")
+                print("You have lost 5HP, find some food soon...")
                 character[0][0] -= 5
-                print("You now have", character[0][0], "HP")
+                print("\nYou now have", character[0][0], "HP")
 
-            if character[1][0] == "Parched":
-                print("\nYou're parched, find some water soon...")
-                print("You have lost 5HP")
-                character[0][0] -= 5
-                print("You now have", character[0][0], "HP")
-
-            elif character[1][0] == "Dehydrated":
-                print("\nYou're dehydrated, find some water urgently...")
-                print("You have lost 10HP")
+            if character[1][0] == "Dehydrated":
+                print("\nYou are now dehydrated")
+                print("You have lost 10HP, find some water soon...")
                 character[0][0] -= 10
-                print("You now have", character[0][0], "HP")
+                print("\nYou now have", character[0][0], "HP")
 
             elif character[1][0] == "Severely Dehydrated":
-                print("\nYou're severely dehydrated, find some water VERY URGENTLY...")
-                print("You have lost 30HP")
-                character[0][0] -= 30
-                print("You now have", character[0][0], "HP")
+                print("\nYou are now severely dehydrated")
+                print("You have lost 30HP, find some water URGENTLY...")
+                character[0][0] -= 20
+                print("\nYou now have", character[0][0], "HP")
 
             if character[0][0] < 0:
                 character[0][0] = 0
 
-            print("\nYou close your eyes and go to sleep\n")
+            print("You close your eyes and go to sleep")
+            input("\nPress 1 to continue to Day "  + str((day + 1)) + ": ")
+
             if character[0][0] == 0:
                 print("Your body couldn't take it any more and in your sleep...\nYOU DIED")
                 game= False

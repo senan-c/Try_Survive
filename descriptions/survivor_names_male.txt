@@ -1,1 +1,1 @@
-Bill,Bob,Buck,Crock,Carl,Daryl,Dave,Evan,Fred,Gary,Gold,Harry,Harold,Henry,Ivan,Jones,Jack,James,Kent,Leon,Leo,Leonard,Manny,Mark,Nick,Owen,Pat,Perry,Pete,Quinton,Ryan,Ralph,Rudy,Steve,Sean,Sam,Tim,Tom,Virgil,Wally,Wallace
+Adam,Axel,Bill,Bob,Buck,Brian,Billy,Crock,Crowley,Carl,Charles,Christopher,Daryl,Dave,Evan,Fred,Gary,Gold,Gabe,Harry,Harold,Henry,Hugh,Ivan,Jones,Jack,James,John,Kent,Kevin,KeoghLeon,Leo,Leonard,Manny,Mark,Mercer,Nick,Owen,Pat,Perry,Pete,Quinton,Ryan,Ralph,Rudy,Robert,Rex,Rick,Steve,Sean,Sam,Tim,Tom,Tyreese,Virgil,Wally,Wallace,Wyatt,Xavier
