@@ -7,28 +7,29 @@ class Human:
         self.health = 100
         self.weapon = weapon
         self.armour = armour
+        self.armour_val = 0
         
         if self.armour is not None:
             if self.armour == "(clothing) *army helmet*":
-                self.health += 30
+                self.armour_val += 30
                 
             elif self.armour == "(clothing) *body armour*":
-                self.health += 75
+                self.armour_val += 75
                 
             elif self.armour == "(clothing) *leather jacket*":
-                self.health += 15
+                self.armour_val += 15
             
             elif self.armour == "(clothing) *motorbike helmet*":
-                self.health += 20
+                self.armour_val += 20
                 
             elif self.armour == "(clothing) *police vest*":
-                self.health += 40
+                self.armour_val += 40
                 
             elif self.armour == "(clothing) *combat pants*" or self.armour == "(clothing) *work boots*":
-                self.health += 10
+                self.armour_val += 10
                 
             elif self.armour == "(clothing) *leather gloves*":
-                self.health += 5
+                self.armour_val += 5
                 
     def display_armour(self):
         if self.armour is not None:
@@ -74,10 +75,10 @@ class Human:
     def dodge(self):
         chance = random.randint(1, 3)
         if chance == 1:
-            print(self.name, "dodges your attack")
+            print(self.name, "dodges your attack\n")
             
         elif chance == 2:
-            print("He ducks under your strike")
+            print("He ducks under your strike\n")
             
         elif chance == 3:
-            print(self.name, "barely dodges your attack")
+            print(self.name, "barely dodges your attack\n")
