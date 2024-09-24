@@ -93,7 +93,7 @@ survivors_male_list = survivors_male.split(",")
 raider_descriptions_list += survivor_descriptions_list
 
 #0 HP, 1 Water, 2 Calories, 3 Food, 4 Weapons, 5 Meds, 6 Friends, 7 Home, 8 Bag, 9 Fuel, 10 Ammo
-character = [[100], ["Hydrated"], [2000], [], ["hands", "*katana*"], [], [], [], ["Journal"], [0], [0, 0]]
+character = [[100], ["Hydrated"], [2000], [], ["hands"], [], [], [], ["Journal"], [0], [0, 0]]
 #0 Head, 1 Torso, 2 Hands, 3 Legs, 4 Feet
 current_clothing = [[],[],[],[],[]]
 total_armour = 0
@@ -2793,9 +2793,9 @@ while game:
             latest_events.append(chance)
 
             if chance == 1:
-                chance = random.randint(1, 2)
+                chance = random.randint(1, 3)
 
-                if chance == 1:
+                if chance != 1:
                     zom_chance = random.randint(1,5)
                     if zom_chance == 1:
                         print("On your way through",area,"you spot a zombie walking near a crate of supplies")
@@ -2815,11 +2815,11 @@ while game:
 
                     if fight_choice == 1:
                         if zom_chance == 1:
-                            zombie_grammar = "zombie"
+                            zombie_grammar = "a zombie"
                             print("You approach the zombie and get ready to fight")
 
                         else:
-                            zombie_grammar = "zombies"
+                            zombie_grammar = "some zombies"
                             print("You approach the zombies and get ready to fight")
 
                         fight_result= fight(zom_chance,"zombies")
@@ -2922,7 +2922,7 @@ while game:
             elif chance == 2:
                 chance = random.randint(1, 3)
 
-                if chance != 1:
+                if chance == 1:
                     print("As you're walking through", area, "you hear the shuffling of many feet and a moaning of many mouths")
 
                     chance = random.randint(10, 100)
@@ -3340,7 +3340,7 @@ while game:
                         journal_entry("Found an unlooted store but decided not to risk it")
 
                 else:
-                    chance = random.randint(1, 8)
+                    chance = random.randint(1, 6)
 
                     if chance == 1:
                         print("One of your usual paths is a bridge across the nearby river, but it looks to have collapsed")
@@ -3656,7 +3656,7 @@ while game:
             elif chance == 5:
                 chance = random.randint(1, 3)
 
-                if chance == 1:
+                if chance != 1:
                     print("You're walking through", area, "when something catches your eye")
                     print("It looks like someone is waving at you from the roof of a nearby building!")
                     survivor_num = random.randint(1, 2)
@@ -3926,7 +3926,7 @@ while game:
             elif chance == 6:
                 chance = random.randint(1, 3)
 
-                if chance == 1:
+                if chance != 1:
                     print("You're exploring", area, "when a small office building catches your eye")
                     print("Will you:\n1. Explore the building\n2. Head home")
                     choice = make_choice()
@@ -4031,7 +4031,7 @@ while game:
             elif chance == 7 and day > 10:
                 chance = random.randint(1, 3)
 
-                if chance == 1:
+                if chance != 1:
                     print("As you walk through", area, "you begin to notice the signs of another survivor")
                     print("You spot some footprints leading off your usual path, and down a dark side street...")
                     print("Will you:\n1. Follow the footprints\n2. Head home")
@@ -4484,73 +4484,72 @@ while game:
 
                 else:
                     chance = random.randint(1, 2)
-                    if chance == 1:
+                    if chance == 1 or len(character[6]) == 0:
                         print("You hear voices arguing up ahead, and while making sure to stay hidden, you take a look\n")
                         print("You peek over an overturned truck and see a two groups of raiders arguing!")
                         print("It looks like they were waiting to ambush unsuspecting survivors, but couldn't decide who gets what")
                         print("You count yourself thankful for their incompetence, and head home")
 
-                    elif chance == 2:
-                        if len(character[6]) > 0:
-                            chance = random.randint(1, 3)
-                            if chance == 1:
-                                friends = character[6][random.randint(0, len(character[6]) - 1)]
-                                friend1 = friends[0]
-                                friend_count = 1
+                    elif chance == 2 and len(character[6]) > 0:
+                        chance = random.randint(1, 3)
+                        if chance == 1:
+                            friends = character[6][random.randint(0, len(character[6]) - 1)]
+                            friend1 = friends[0]
+                            friend_count = 1
 
-                                if len(friends) > 1:
-                                    friend2 = friends[1]
-                                    friend_count = 2
+                            if len(friends) > 1:
+                                friend2 = friends[1]
+                                friend_count = 2
 
-                                character[6].remove(friends)
+                            character[6].remove(friends)
 
-                                print("You're on-route to your destination when you hear a commotion ahead")
-                                print("You peek around some cars and spot a large group of raiders")
+                            print("You're on-route to your destination when you hear a commotion ahead")
+                            print("You peek around some cars and spot a large group of raiders")
 
-                                if friend_count == 1:
-                                    print(
-                                        "You inch closer, and it looks like they have a human head on the end of a pike...")
-
-                                else:
-                                    print(
-                                        "You inch closer, and it looks like they have two human head on the ends of pikes...")
-
-                                print("Will you:\n1. Take a closer look\n2. Make a run for it")
-                                choice = make_choice()
-
-                                if choice == 1:
-                                    print(
-                                        "You sneak closer, moving between burnt out cars until you're close enough to see properly...\n")
-
-                                    if friend_count == 1:
-                                        print("It's", (friend1 + "'s"), "head on the pike")
-                                        print("Your friend", friend1, "is dead, killed by raiders")
-
-                                        log = "Raiders killed my friend " + friend1
-                                        journal_entry(log)
-
-                                    else:
-                                        print("The heads belong to", friend1, "and", friend2)
-                                        print("The raiders have killed your friends")
-
-                                        log = "Raiders killed my friends " + friend1 + " and " + friend2
-                                        journal_entry(log)
-
-                                    print("Shaking with rage, you hold yourself back")
-                                    print("There's no way you could take this many raiders in a fight")
-                                    print("You walk home in the rain, plotting your revenge...")
-
-                                else:
-                                    print("You don't risk the raiders spotting you, not wanting to end up on a pike, so you make your exit")
-                                    print("As you walk home, you hope those heads didn't belong to anyone you knew...")
-
-                                    journal_entry("Some raiders had heads on pikes, hope it was nobody I knew")
+                            if friend_count == 1:
+                                print(
+                                    "You inch closer, and it looks like they have a human head on the end of a pike...")
 
                             else:
-                                print("You're making your way down to", area, "when you hear gunfire ahead")
-                                print("It continues briefly before stopping, but the damage has been done")
-                                print("Dozens of zombies emerge from the streets around you, and you dive into cover")
-                                print("Scavenging here is going to be a no-go today...")
+                                print(
+                                    "You inch closer, and it looks like they have two human head on the ends of pikes...")
+
+                            print("Will you:\n1. Take a closer look\n2. Make a run for it")
+                            choice = make_choice()
+
+                            if choice == 1:
+                                print(
+                                    "You sneak closer, moving between burnt out cars until you're close enough to see properly...\n")
+
+                                if friend_count == 1:
+                                    print("It's", (friend1 + "'s"), "head on the pike")
+                                    print("Your friend", friend1, "is dead, killed by raiders")
+
+                                    log = "Raiders killed my friend " + friend1
+                                    journal_entry(log)
+
+                                else:
+                                    print("The heads belong to", friend1, "and", friend2)
+                                    print("The raiders have killed your friends")
+
+                                    log = "Raiders killed my friends " + friend1 + " and " + friend2
+                                    journal_entry(log)
+
+                                print("Shaking with rage, you hold yourself back")
+                                print("There's no way you could take this many raiders in a fight")
+                                print("You walk home in the rain, plotting your revenge...")
+
+                            else:
+                                print("You don't risk the raiders spotting you, not wanting to end up on a pike, so you make your exit")
+                                print("As you walk home, you hope those heads didn't belong to anyone you knew...")
+
+                                journal_entry("Some raiders had heads on pikes, hope it was nobody I knew")
+
+                        else:
+                            print("You're making your way down to", area, "when you hear gunfire ahead")
+                            print("It continues briefly before stopping, but the damage has been done")
+                            print("Dozens of zombies emerge from the streets around you, and you dive into cover")
+                            print("Scavenging here is going to be a no-go today...")
 
                     print("\nDespite your difficulties, you still manage to scrape up something:")
                     random_item(1, 2, "normal")
@@ -4972,7 +4971,8 @@ while game:
 
                                 first_floor.remove(room)
 
-                            print("\nYou're satisfied you've looted everything in this room and can move on")
+                            if room != "stairs":
+                                print("\nYou're satisfied you've looted everything in this room and can move on")
 
                         
                             if len(first_floor) > 0:
@@ -5177,27 +5177,53 @@ while game:
                         print("Whatever it was...")
 
                     else:
-                        print("You journey out to scavenge in", area, "but something isn't right")
-                        print("It feels like someone, or something is watching you...\n")
-
-                        chance = random.randint(1, 3)
-
-                        if chance == 1:
-                            print("You keep walking straight, then dash off to the side")
-                            print("Sprinting through sidestreets, you're taking a big risk, but your mind tells you it's the right decision")
-
-                        elif chance == 2:
-                            print("As you scavenge through some cars, you jump behind a van and run down a neighbouring alley")
-                            print("You don't know what was watching you, but you've lost it")
-
-                        else:
-                            print("You keep moving towards your destination, when you feel a strange presence behind you")
-                            print("Adrenaline fills your veins as you leap and jump over a fence, circling back down a different street")
-
-                        print("As you head back to the", character[7][0], "you no longer feel that uneasy sensation...")
+                        print("As you head down your usual road towards", area, "the smell of smoke drifts towards you")
+                        print("You climb onto the roof of a smashed up store, and see a huge fire raging ahead")
+                        print("The noise is drawing hundreds of zombies from all directions, you'll have to head home...")
 
                     print("\nDespite your difficulties, you still manage to scrape up something:")
                     random_item(1,2,"normal")
+
+            else:
+                chance = random.randint(1, 6)
+
+                if chance == 1:
+                    print("You're keeping an eye out for zombies when a horde passes across the street ahead")
+                    print("You watch as zombies trickle in from side streets and head towards it")
+                    print("As you turn to head back home something catches your eye")
+                    print("\nA huge zombie, about 10 feet tall and clad in riot gear is lumbering around in the centre of the horde")
+                    print("Could it be possible that the zombies can mutate?")
+
+                elif chance == 2 or chance == 3:
+                    print("You're on your way towards", area, "when a commotion ahead makes you stop and duck down")
+                    print("Peering around the corner, you can't believe your eyes...")
+                    print("A tank is being swarmed by zombies, and as you watch a soldier is dragged out and pulled into the horde")
+                    print("With the hatch open, the zombies climb into the tank")
+                    print("\nThe world belongs to them now")
+                    print("As you head home, you wonder if that was the last remnant of the army you'll see...")
+
+                else:
+                    print("You journey out to scavenge in", area, "but something isn't right")
+                    print("It feels like someone, or something is watching you...\n")
+
+                    chance = random.randint(1, 3)
+
+                    if chance == 1:
+                        print("You keep walking straight, then dash off to the side")
+                        print("Sprinting through sidestreets, you're taking a big risk, but your mind tells you it's the right decision")
+
+                    elif chance == 2:
+                        print("As you scavenge through some cars, you jump behind a van and run down a neighbouring alley")
+                        print("You don't know what was watching you, but you've lost it")
+
+                    else:
+                        print("You keep moving towards your destination, when you feel a strange presence behind you")
+                        print("Adrenaline fills your veins as you leap and jump over a fence, circling back down a different street")
+
+                    print("As you head back to the", character[7][0], "you no longer feel that uneasy sensation...")
+
+                print("\nDespite your difficulties, you still manage to scrape up something:")
+                random_item(1,2,"normal")
 
             if game:
                 water_chance = random.randint(1,3)
@@ -5369,7 +5395,6 @@ while game:
                     loop = True
                     while loop:
                         if len(character[8]) > 0:
-                            print(line_break)
                             print("Click the corresponding button to select an item")
                             print("You have:")
                             count = 1
@@ -5422,6 +5447,7 @@ while game:
 
                                         character[9].remove("(mod) **suppressor**")
 
+                                print(line_break)
 
                             elif choice == count:
                                 loop = False
