@@ -61,13 +61,13 @@ class Boss:
     def dodge(self):
         chance = random.randint(1, 3)
         if chance == 1:
-            print("The", self.name, "dodges your attack")
+            print("The", self.name, "dodges your attack\n")
             
         elif chance == 2:
-            print("The", self.name, "blocks your attack easily")
+            print("The", self.name, "blocks your attack easily\n")
             
         elif chance == 3:
-            print("The", self.name, "barely blocks your attack, but is unfazed")
+            print("The", self.name, "barely blocks your attack, but is unfazed\n")
             
     def shout(self):
         chance = random.randint(1, 4)
