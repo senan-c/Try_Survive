@@ -3508,7 +3508,7 @@ while game:
                         chance = random.randint(1, 2)
                         if chance == 1:
                             print("The horde gives chase, following you down the street and away from the",van)
-                            print("Will you:\n1. Double back around\n2.Hide and wait for the horde to pass")
+                            print("Will you:\n1. Double back around\n2. Hide and wait for the horde to pass")
                             choice = make_choice()
 
                             if choice == 1:
@@ -5253,8 +5253,10 @@ while game:
                 water_chance = random.randint(1,3)
 
                 if water_chance == 1 and character[7][0] != "campground clearing":
-                    print("\nYou find some water on your way home, enough for today")
-                    water_drank = True
+
+                    if not water_drank:
+                        print("\nYou find some water on your way home, enough for today")
+                        water_drank = True
 
         elif choice == 3:
             take_rest()
@@ -5537,17 +5539,18 @@ while game:
                 character[0][0] -= 5
                 print("\nYou now have", character[0][0], "HP")
 
-            if character[1][0] == "Dehydrated":
-                print("\nYou are now dehydrated")
-                print("You have lost 10 HP, find some water soon...")
-                character[0][0] -= 10
-                print("\nYou now have", character[0][0], "HP")
+            if not water_drank:
+                if character[1][0] == "Dehydrated":
+                    print("\nYou are now dehydrated")
+                    print("You have lost 10 HP, find some water soon...")
+                    character[0][0] -= 10
+                    print("\nYou now have", character[0][0], "HP")
 
-            elif character[1][0] == "Severely Dehydrated":
-                print("\nYou are now severely dehydrated")
-                print("You have lost 20 HP, find some water URGENTLY...")
-                character[0][0] -= 20
-                print("\nYou now have", character[0][0], "HP")
+                elif character[1][0] == "Severely Dehydrated":
+                    print("\nYou are now severely dehydrated")
+                    print("You have lost 20 HP, find some water URGENTLY...")
+                    character[0][0] -= 20
+                    print("\nYou now have", character[0][0], "HP")
 
             if character[0][0] < 0:
                 character[0][0] = 0
