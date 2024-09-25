@@ -811,6 +811,7 @@ def fight_human(human_enemy, weapon_choice, bonus_dam, armour):
             damage = result[0]
 
         else:
+            finisher = 0
 
             if weapon_choice == "hands":
                 miss_chance = random.randint(1, 2)
@@ -3238,13 +3239,30 @@ while game:
 
                         elif chance == 2:
                             print("You check the back, and there is indeed an unlocked door through to the store")
-                            print("It's definitely not as full as it looked but it's good enough for you\n")
-                            print("You check the aisles and find:")
-                            random_item(3,8,"normal")
 
-                            print("Feeling smart and with your pockets full, you decide to head back to the",character[7][0])
+                            chance = random.randint(1, 3)
 
-                            journal_entry("Found the back door of an unlooted store and filled my pockets")
+                            if chance == 1:
+                                zom_num = random.randint(2, 3)
+
+                                print("\nYou open the door but there are", zom_num, "zombies inside!")
+                                print("You're going to have to fight for this loot!")
+                                fight_result = fight(zom_num, "zombies")
+
+                                if fight_result:
+                                    print("With them out of the way, you're free to check out the store")
+
+                                else:
+                                    game = False
+                            
+                            if game:
+                                print("It's definitely not as full as it looked but it's good enough for you\n")
+                                print("You check the aisles and find:")
+                                random_item(3,8,"normal")
+
+                                print("Feeling smart and with your pockets full, you decide to head back to the",character[7][0])
+
+                                journal_entry("Found the back door of an unlooted store and filled my pockets")
 
                         elif chance == 3:
                             print("You check around the corner of the alleyway, but it seems a bomb has gone off here")
@@ -3706,8 +3724,8 @@ while game:
                             survivor_pool.append(special_item_list[random.randint(0, len(special_item_list) - 1)])
 
                         your_item1 = select_random_item()
-                        if your_item1 is None:
-                            break
+                        while your_item1 is None:
+                            your_item1 = select_random_item()
 
                         survivor_item1 = survivor_pool[random.randint(0, len(survivor_pool) - 1)]
 
@@ -5304,7 +5322,7 @@ while game:
                         heal_choice = make_choice()
 
                         if heal_choice != count + 1:
-                            print("\nWhat item will you use?")
+                            print("What item will you use?")
                             if heal_choice!= count or character[0][0] == 100:
                                 count= 1
                                 for i in character[5]:
@@ -5386,7 +5404,7 @@ while game:
 
                                 print("You now have", character[0][0], "/ 100 HP")
                                 character[5].remove(character[5][choice -1])
-                                print()
+                            print()
 
                         else:
                             print("You chose not to heal anything\n")
@@ -5515,19 +5533,19 @@ while game:
 
             if character[2][0] == 0:
                 print("You are now starving")
-                print("You have lost 5HP, find some food soon...")
+                print("You have lost 5 HP, find some food soon...")
                 character[0][0] -= 5
                 print("\nYou now have", character[0][0], "HP")
 
             if character[1][0] == "Dehydrated":
                 print("\nYou are now dehydrated")
-                print("You have lost 10HP, find some water soon...")
+                print("You have lost 10 HP, find some water soon...")
                 character[0][0] -= 10
                 print("\nYou now have", character[0][0], "HP")
 
             elif character[1][0] == "Severely Dehydrated":
                 print("\nYou are now severely dehydrated")
-                print("You have lost 20HP, find some water URGENTLY...")
+                print("You have lost 20 HP, find some water URGENTLY...")
                 character[0][0] -= 20
                 print("\nYou now have", character[0][0], "HP")
 
