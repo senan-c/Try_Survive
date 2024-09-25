@@ -2798,6 +2798,12 @@ while game:
                 if chance != 1:
                     zom_chance = random.randint(1,5)
                     if zom_chance == 1:
+                        zombie_grammar = "zombie"
+
+                    else:
+                        zombie_grammar = "zombies"
+
+                    if zom_chance == 1:
                         print("On your way through",area,"you spot a zombie walking near a crate of supplies")
 
                     else:
@@ -3616,7 +3622,7 @@ while game:
                                 if chance == 1:
                                     print("Their undead flesh is no match for your speed and you get away unscathed")
                                     print("You loop back to the van but it's still covered in zombies")
-                                    print("You'll have to leave before it gets dark,",van,"or no",van)
+                                    print("You'll have to leave before it gets dark,",van,"or not")
 
                                     journal_entry("Had to outrun a horde, scavenging run not successful")
 
@@ -3975,7 +3981,7 @@ while game:
 
                             code_list_sorted = sorted(code_list)
 
-                            print("But the keypad is faded on the", str(code_list_sorted[0]) + ", " + str(code_list_sorted[1]) + " and " + str(code_list_sorted[2]) + " keys")
+                            print("But the keypad is faded on the", str(code_list_sorted[0]) + ", " + str(code_list_sorted[1]) + " and " + str(code_list_sorted[2]) + " keys\n")
                             print("Seems like you'll only get one chance before the safe locks permanently")
                             print("Input the numbers one-by-one:")
                             for i in range(3):
@@ -4754,7 +4760,7 @@ while game:
                         chance = random.randint(1, 4)
 
                         if day < 10:
-                            chance = 1
+                            chance = 2
 
                         if chance != 1:
                             print("You roll behind a greasy black bin, and the zombies pass by")
@@ -5561,7 +5567,7 @@ with open("scores.csv", "r") as prev_scores:
 
 scoreboard = scoreboard[1:]
 
-for i in range(2, len(scoreboard)):
+for i in range(1, len(scoreboard)):
     key = scoreboard[i]
     count = i - 1
 
@@ -5576,5 +5582,5 @@ print()
 print("{:-^46}".format("HIGH SCORES"))
 print("{0:15}".format("Player:"), ("Days Survived:"), ("Zombies Killed:"))
 for index, player in enumerate(scoreboard):
-    print("{0:15}".format(player[0]), player[1] + (" " * 14) +  player[2])
+    print("{0:15}".format(player[0]), "{0:14}".format(player[1]), player[2])
 print("-" * 46)
