@@ -3100,7 +3100,7 @@ while game:
                             if fight_result:
                                 print("After the fight, you turn over the mangled body of the survivor and check his pockets")
                                 print("You find:")
-                                random_item(1, 3, "normal")
+                                random_item(2, 3, "normal")
                                 chance = random.randint(1,3)
                                 if chance == 1:
                                     random_item(0, 1, "special")
