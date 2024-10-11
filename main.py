@@ -1961,7 +1961,7 @@ while game:
                 print("You have:")
                 count = 1
                 for i in character[3]:
-                    print(str(count) + ". " + i)
+                    print(str(count) + ". " + i + " - " + str(get_cals(i)) + " calories")
                     count += 1
 
                 if len(character[3]) > 1:
@@ -2810,12 +2810,12 @@ while game:
 
                     if zom_chance == 1:
                         print("On your way through",area,"you spot a zombie walking near a crate of supplies")
+                        print("Will you:\n1. Fight the zombie\n2. Sneak away")
 
                     else:
                         print("On your way through the forest you spot",zom_chance,"zombies walking near a crate of supplies")
-
-                    print("Will you:\n1. Fight the zombies\n2. Sneak away")
-
+                        print("Will you:\n1. Fight the zombies\n2. Sneak away")
+                    
                     fight_choice = make_choice()
 
                     if zom_chance == 1:
@@ -3389,8 +3389,8 @@ while game:
                         print("Bodies float on the waters surface, and you don't even want to think about what lies below...")
                         print("You'll have to head home for today, but the flood should clear up soon")
 
-                        print("\nDespite your difficulties, you still manage to scrape up something:")
-                        random_item(1, 2, "normal")
+                    print("\nDespite your difficulties, you still manage to scrape up something:")
+                    random_item(1, 2, "normal")
 
             elif chance == 4:
                 chance = random.randint(1,3)
@@ -5505,7 +5505,7 @@ while game:
                     print("You have:")
                     count = 1
                     for i in character[3]:
-                        print(str(count) + ". " + i)
+                        print(str(count) + ". " + i + " - " + str(get_cals(i)) + " calories")
                         count += 1
 
                     if len(character[3]) > 1:
