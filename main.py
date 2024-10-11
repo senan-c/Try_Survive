@@ -2660,37 +2660,41 @@ while game:
 
                             for i in range(3):
                                 your_item = select_random_item()
-                                if your_item[7:] in character[3]:
-                                    if your_item[7:] not in cal_list_800 and your_item[7:] not in cal_list_1000:
-                                        if len(character[5]) > 0:
-                                            category = character[5]
-                                            your_item = character[5][random.randint(0, len(character[5]) - 1)]
+                                if your_item is not None:
+                                    if your_item[7:] in character[3]:
+                                        if your_item[7:] not in cal_list_800 and your_item[7:] not in cal_list_1000:
+                                            if len(character[5]) > 0:
+                                                category = character[5]
+                                                your_item = character[5][random.randint(0, len(character[5]) - 1)]
 
-                                        elif len(character[4]) > 1:
-                                            category = character[4]
-                                            your_item = character[4][random.randint(0, len(character[4]) - 1)]
-                                            while your_item == "hands":
+                                            elif len(character[4]) > 1:
+                                                category = character[4]
                                                 your_item = character[4][random.randint(0, len(character[4]) - 1)]
+                                                while your_item == "hands":
+                                                    your_item = character[4][random.randint(0, len(character[4]) - 1)]
 
-                                        else:
-                                            your_item = None
+                                            else:
+                                                your_item = None
 
-                                        if your_item is not None:
-                                            if category[0] == character[4][0]:
-                                                your_item = "(weapon) " + your_item
+                                            if your_item is not None:
+                                                if category[0] == character[4][0]:
+                                                    your_item = "(weapon) " + your_item
 
-                                            elif category[0] == character[5][0]:
-                                                your_item = "(meds) " + your_item
+                                                elif category[0] == character[5][0]:
+                                                    your_item = "(meds) " + your_item
 
                                 if your_item is not None:
                                     your_item_list.append(your_item)
 
                                 trader_item = trader_pool[random.randint(0, len(trader_pool) -1)]
                                 trader_item_list.append(trader_item)
+                                stored_trades = []
                                 if your_item is not None:
                                     trade = "Your " + your_item + " for his " + trader_item
-                                    print(str(count) + ". " + trade)
-                                    count += 1
+                                    if trade not in stored_trades:
+                                        print(str(count) + ". " + trade)
+                                        count += 1
+                                    stored_trades.append(trade)
 
                                 else:
                                     none_count += 1
