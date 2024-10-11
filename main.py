@@ -2322,10 +2322,10 @@ while game:
 
                             else:
                                 if character[0][0] > 20:
-                                    journal("Had to fight a raider while exploring")
+                                    journal_entry("Had to fight a raider while exploring")
 
                                 else:
-                                    journal("Had to fight a raider while exploring, I barely survived")
+                                    journal_entry("Had to fight a raider while exploring, I barely survived")
 
                 elif chance == 2:
                     print("You tread lightly through the", location, "but it looks like there's nobody else here")
