@@ -3185,7 +3185,7 @@ while game:
                                             log = "Almost died while looting but I was saved by my friends " + friend1 + " and " + friend2
                                             journal_entry(log)
 
-                                        if chance == 1:
+                                        else:
                                             print("You slip and arms reach out and grab you, but suddenly you're pulled back away from the horde")
                                             print("It's", (friend1 + "!"), "he's rescued you!")
                                             print("The two of you escape the horde, and he reminds you of the favor he owed you")
