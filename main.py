@@ -346,7 +346,7 @@ def choose_weapon():
 
     return weapon_choice
 
-def ranged_attack(weapon, enemy, health):
+def ranged_attack(weapon, enemy, health, armour=0):
     boss = False
     attack_missed = False
 
@@ -410,45 +410,46 @@ def ranged_attack(weapon, enemy, health):
                         if crit_chance == 1:
                             damage += 100
 
-                    elif (damage + 50) < health:
-                        crit_chance = random.randint(1, 2)
-                        if crit_chance == 1:
-                            damage += 50
-
-                    elif (damage + 25) < health:
-                        damage += 25
-
                     else:
                         damage = health
 
                 else:
-                    damage = health
+                    damage = health + armour
 
                 if weapon == "**assault rifle**":
                     if (damage + 20) < health:
                         damage += 20
 
-                print("Critical Hit! You hit", enemy, "for", damage, "damage")
+                print("Critical Hit! You hit", enemy, "for", int(damage), "damage")
 
             else:
                 part_hit = random.randint(1, 3)
-                if health < 40:
+                if health < 60 and boss == False:
+                    damage = health
+
+                elif health < 80 and boss == True:
                     damage = health
 
                 else:
                     if boss == True:
                         min_dam = health // 5
-                        max_dam = health // 3.5
 
-                        damage = random.randint(int(min_dam), int(max_dam))
+                        if health > 100:
+                            max_dam = health // 2
+                            damage = random.randint(int(min_dam), int(max_dam))
+
+                        else:
+                            damage = health
 
                     else:
-                        min_dam = health // 3
-                        max_dam = health // 1.5
+                        min_dam = health // 2
 
-                        damage = random.randint(int(min_dam), int(max_dam))
+                        damage = random.randint(int(min_dam), health)
 
-                    if damage < 50 and health > 50 and (damage + 20) < health:
+                    if damage < 50 and health > 50 and (damage + 30) < health:
+                        damage += 30
+
+                    elif damage < 50 and health > 50 and (damage + 20) < health:
                         damage += 20
 
                     elif damage < 50 and health > 50 and (damage + 10) < health:
@@ -459,7 +460,7 @@ def ranged_attack(weapon, enemy, health):
                         damage += 20
 
                 if part_hit == 1:
-                    print("The", round, "on target, but", strike + " " + enemy, "in the torso\n")
+                    print("The", round, "on target, but", strike + " " + enemy, "in the torso")
                     if (damage + 10) < health:
                         damage += 10
 
@@ -467,12 +468,12 @@ def ranged_attack(weapon, enemy, health):
                         damage += 5
 
                 elif part_hit == 2:
-                    print("The", round, "on target, but", strike + " " + enemy, "in the arm\n")
+                    print("The", round, "on target, but", strike + " " + enemy, "in the arm")
 
                 else:
-                    print("The", round, "on target, but", strike + " " + enemy, "in the leg\n")
+                    print("The", round, "on target, but", strike + " " + enemy, "in the leg")
 
-                print("You hit the", enemy, "for", damage, "damage")
+                print("You hit", enemy, "for", int(damage), "damage")
 
         else:
             attack_missed = True
@@ -483,16 +484,11 @@ def ranged_attack(weapon, enemy, health):
             else:
                 round = "rounds"
 
-            print("\nThe", round + " " + miss + " " + enemy + "!")
+            print("The", round + " " + miss + " " + enemy + "!")
 
             damage = 0
 
-        if attack_missed == False:
-            print(enemy, "has", health - damage, "HP left")
-            print()
-            input("Press 1 to continue: ")
-            if health != 0:
-                print(line_break)
+        print()
         return [damage, attack_missed]
 
 
@@ -519,29 +515,32 @@ def fight_zombie(zombie, weapon_choice, bonus_dam):
             else:
                 result = ranged_attack(weapon_choice, "the zombie", zombie.health)
 
-            if result[1] == True:
-                print("\nThe zombie strikes!")
-                chance = random.randint(1, 7)
+                zombie.health -= result[0]
 
-                if "*" in weapon_choice:
-                    chance = random.randint(1, 9)                   
+                if zombie.health < 0:
+                    zombie.health = 0
+
+                if result[1] == False:
+                    print("The", zombie.character, "has", zombie.health, "HP left")
+                    input("\nPress 1 to continue:")
+                    print(line_break)
+
+            if result[1] == True:
+                print("The zombie strikes!")
+                chance = random.randint(1, 7)
+                 
                 if chance == 1:
                     print("The", zombie.character, "grabs you and bites!\nYOU ARE DEAD")
                     return False
 
-                elif chance == 2:
+                elif chance == 2 or chance == 3:
                     print("The zombie charges forward, but you knock back its attack with your", weapon_choice)
 
                 else:
                     print("The zombie lunges for you, but you dodge and the fight continues")
 
-                input("Press 1 to continue: ")
+                input("\nPress 1 to continue:")
                 print(line_break)
-                print()
-
-            zombie.health -= result[0]
-            if zombie.health < 0:
-                zombie.health = 0
 
         else:
             if weapon_choice == "hands":
@@ -550,9 +549,12 @@ def fight_zombie(zombie, weapon_choice, bonus_dam):
             else:
                 miss_chance = random.randint(1, 5)
 
+                if zombies_killed > 50:
+                    miss_chance = random.randint(1, 7)
+
             if miss_chance != 1:
                 chance = random.randint(1, 2)
-                if weapon_choice == "machete" or weapon_choice == "knife":
+                if weapon_choice == "machete" or weapon_choice == "knife" or weapon_choice == "*katana*" or weapon_choice == "**butterfly knife**":
                     if chance == 1:
                         print("You stab the", zombie.character, "with your",weapon_choice)
 
@@ -573,22 +575,49 @@ def fight_zombie(zombie, weapon_choice, bonus_dam):
                     else:
                         print("You club the", zombie.character, "with your", weapon_choice)
 
-                if zombie.health >= 40:
+                if zombie.health > 50:
+                    damage = random.randint(50, zombie.health) + bonus_dam
+
+                elif zombie.health > 40:
                     damage = random.randint(40, zombie.health) + bonus_dam
+
+                elif zombie.health > 30:
+                    damage = random.randint(30, zombie.health) + bonus_dam
 
                 else:
                     damage = zombie.health
 
                 if weapon_choice == "hands":
-                    if zombie.health > 10:
-                        damage = random.randint(10, zombie.health) + bonus_dam
-                        if damage == 0:
-                            damage = 10
+                    if zombie.health > 20:
+                        if zombie.health//2 > 15:
+                            damage = random.randint(15, zombie.health//2) + bonus_dam
+                        
+                        else:
+                            damage = random.randint(15, 20)
+
+                        if damage < 15:
+                            damage = random.randint(15, 20)
 
                     else:
                         damage = zombie.health
 
-                if damage > zombie.health // 2:
+                if weapon_choice != "hands":
+                    if "*" not in weapon_choice:
+                        damage -= 5
+
+                    else:
+                        damage += 5
+
+                    if damage < 20:
+                        damage = random.randint(20, 25)
+
+                if damage > zombie.health:
+                    damage = zombie.health
+
+                if damage < 0:
+                    damage = 0
+
+                if damage > (zombie.health // 10) * 8:
                     print("Critical Hit! You hit the zombie for",damage,"damage")
 
                 else:
@@ -598,12 +627,28 @@ def fight_zombie(zombie, weapon_choice, bonus_dam):
                 print("You swing your",weapon_choice,"and miss")
                 print("\nThe zombie strikes!")
                 chance = random.randint(1,7)
+
+                if character[2][0] > 2000:
+                    chance = random.randint(1,8)
+
+                if "*" in weapon_choice:
+                    chance = random.randint(1, 10)  
+
+                    if character[2][0] > 2000:
+                        chance = random.randint(1,11)
+
                 if chance == 1:
                     print("The",zombie.character,"grabs you and bites!\nYOU ARE DEAD")
                     return False
 
-                elif chance == 2:
+                elif (chance == 2 or chance == 3) and weapon_choice != "hands":
                     print("The zombie charges forward, but you block its attack with your",weapon_choice)
+                    damage = random.randint(5, 20)
+
+                    if damage > zombie.health:
+                        damage = zombie.health
+                    print("Looks like the zombie took",damage,"damage!")
+                    zombie.health -= damage
 
                 else:
                     print("The zombie lunges for you, but you dodge and the fight continues")
@@ -615,12 +660,14 @@ def fight_zombie(zombie, weapon_choice, bonus_dam):
                 print("\nThe", zombie.character, "has", zombie.health, "HP left")
 
             input("Press 1 to continue: ")
+            if zombie.health == 0:
+                print(line_break)
             count += 1
 
     print("The zombie has been defeated!")
     chance = random.randint(1,5)
     if chance== 1:
-        print("The zombie dropped",zombie.loot_drop)
+        print("\nThe zombie dropped",zombie.loot_drop)
         add_item(zombie.loot_drop)
     print(line_break)
 
@@ -637,24 +684,26 @@ def fight_boss(boss, weapon_choice, bonus_dam, armour):
         boss.shout()
         print("You attack the", boss.name, "\n")
         miss_chance = random.randint(1, 4)
+        result = [0, False]
 
         if weapon_choice == "*pistol*" or weapon_choice == "**assault rifle**":
             if weapon_choice == "*pistol*" and character[10][0] == 0 or weapon_choice == "**assault rifle**" and character[10][1] < 3:
                 print("Looks like you don't have enough ammo!")
                 print("You'll have to swap weapons\n")
                 print("You back away from the", boss.name, "and find space to look in your bag")
-                result = [0, False]
 
                 weapon_choice = choose_weapon()
             else:
                 result = ranged_attack(weapon_choice, boss.name, boss.health)
 
-            if result[1] == True:
-                input("Press 1 to continue: ")
-                print(line_break)
-                print()
-
             damage = result[0]
+
+            if result[1] == False:
+                boss.health -= damage
+                if boss.health < 0:
+                    boss.health = 0
+
+                print("It has", int(boss.health), "HP left\n")
 
         else:
             if weapon_choice == "hands":
@@ -702,16 +751,16 @@ def fight_boss(boss, weapon_choice, bonus_dam, armour):
                         damage = boss.health
 
                 if damage > boss.health // 2:
-                    print("Critical Hit! You hit the", boss.name ,"for", damage, "damage\n")
+                    print("Critical Hit! You hit the", boss.name ,"for", int(damage), "damage\n")
 
                 else:
-                    print("You hit the", boss.name ,"for", damage, "damage")
+                    print("You hit the", boss.name ,"for", int(damage), "damage")
 
                 boss.health -= damage
                 if boss.health < 0:
                     boss.health = 0
 
-                print("It has", boss.health, "HP left\n")
+                print("It has", int(boss.health), "HP left\n")
 
             else:
                 chance = random.randint(1,3)
@@ -786,6 +835,7 @@ def fight_boss(boss, weapon_choice, bonus_dam, armour):
 
 def fight_human(human_enemy, weapon_choice, bonus_dam, armour):
     swapped_weapon = False
+    result = [0, True]
 
     while human_enemy.health > 0:
         print(line_break)
@@ -793,6 +843,8 @@ def fight_human(human_enemy, weapon_choice, bonus_dam, armour):
         miss_chance = random.randint(1, 4)
 
         if weapon_choice == "*pistol*" or weapon_choice == "**assault rifle**":
+            miss_chance = 1
+
             if (weapon_choice == "*pistol*" and character[10][0] == 0) or (weapon_choice == "**assault rifle**" and character[10][1] < 3):
                 print("Looks like you don't have enough ammo!")
                 print("You'll have to swap weapons\n")
@@ -802,11 +854,7 @@ def fight_human(human_enemy, weapon_choice, bonus_dam, armour):
                 weapon_choice = choose_weapon()
                 swapped_weapon = True
             else:
-                result = ranged_attack(weapon_choice, human_enemy.name, human_enemy.health)
-
-            if result[1] == True:
-                input("Press 1 to continue: ")
-                print(line_break)
+                result = ranged_attack(weapon_choice, human_enemy.name, human_enemy.health, human_enemy.armour_val)
 
             damage = result[0]
 
@@ -855,7 +903,7 @@ def fight_human(human_enemy, weapon_choice, bonus_dam, armour):
 
                     if weapon_choice == "hands":
                         if human_enemy.health > 15:
-                            damage = random.randint(15, 50) + bonus_dam
+                            damage = random.randint(15, 40) + bonus_dam
                             if damage == 0:
                                 damage = 15
 
@@ -864,10 +912,6 @@ def fight_human(human_enemy, weapon_choice, bonus_dam, armour):
 
                         else:
                             damage = human_enemy.health
-
-                    if "*" in weapon_choice:
-                        if damage + 10 <= human_enemy.health:
-                            damage += 10
 
                 else:
                     if finisher == 1:
@@ -904,7 +948,7 @@ def fight_human(human_enemy, weapon_choice, bonus_dam, armour):
                 else:
                     human_enemy.dodge()
 
-        if miss_chance != 1 or (weapon_choice == "*pistol*" or weapon_choice == "**assault rifle**"):
+        if miss_chance != 1 or result[1] == False:
             if human_enemy.armour_val < damage and human_enemy.armour_val > 0:
                     print("His armour blocked", human_enemy.armour_val, "damage")
                     damage -= human_enemy.armour_val
@@ -923,8 +967,8 @@ def fight_human(human_enemy, weapon_choice, bonus_dam, armour):
                 
             if human_enemy.health < 0:
                 human_enemy.health = 0
-
-            if weapon_choice != "*pistol*" and weapon_choice != "**assault rifle**":
+            
+            if result[1] == False or miss_chance != 1:
                 print("He has", human_enemy.health, "HP left\n")
 
         if human_enemy.health > 0:
@@ -993,13 +1037,15 @@ def fight_human(human_enemy, weapon_choice, bonus_dam, armour):
                 human_enemy.miss()
 
             if character[0][0] == 0:
+                print()
                 print(human_enemy.name, "Has killed you!\nYOU ARE DEAD")
                 return [False, False]
 
         if human_enemy.health != 0:
             input("\nPress 1 to continue:")
 
-    print(human_enemy.name, "has been killed!")
+    print(human_enemy.name, "has been killed!\n")
+    input("Press 1 to continue:")
     print(line_break)
     if swapped_weapon == True:
         return [True, weapon_choice]
@@ -1011,13 +1057,25 @@ def fight_human(human_enemy, weapon_choice, bonus_dam, armour):
 def fight(num, battle, boss=None):
     opp_list = []
     bonus_dam = 0
-    if character[2][0] < 1500:
-        print("You're low on energy and won't be able to fight as well")
-        bonus_dam -= 10
+    if character[2][0] == 0:
+        print("You're starving and you'll barely be able to fight!")
+        bonus_dam -= 30
 
-    elif character[2][0] > 2000:
-        print("You have plenty of energy and will fight well today")
+    elif character[2][0] >= 500 and character[2][0] < 1000:
+        print("You're very hungry and feel weak, you won't be able to fight as well")
+        bonus_dam -= 20
+
+    elif character[2][0] >= 1000 and character[2][0] < 1500:
+        print("You're quite low on energy and won't be able to fight as well")
+        bonus_dam -= 15
+
+    elif character[2][0] >= 2000 and character[2][0] < 2500:
+        print("You have enough energy and will fight well today")
         bonus_dam += 10
+
+    elif character[2][0] >= 2500:
+        print("You have plenty of energy and will fight well today")
+        bonus_dam += 15
 
     if battle == "zombies":
         reg_count = 1
@@ -1140,7 +1198,7 @@ def fight(num, battle, boss=None):
 
             if boss is None:
                 if chance == 1:
-                    print("\nAs you prepare to fight, you notice this zombie", zombie.appearance)
+                    print("\nAs you prepare to fight, you notice this zombie", zombie.appearance,"\n")
 
                 else:
                     print()
@@ -1204,7 +1262,7 @@ def fight(num, battle, boss=None):
             if enemy_weapon != "hands":
                 loot_list.append(enemy_weapon)
 
-            armour_chance = random.randint(1,5)
+            armour_chance = random.randint(1,3)
 
             if armour_chance == 1:
                 enemy_armour = special_item_list[random.randint(0, len(special_item_list) - 1)]
@@ -1219,7 +1277,10 @@ def fight(num, battle, boss=None):
             human_enemy = h.Human(human_name, enemy_weapon, enemy_armour)
             human_enemy.display_armour()
 
-            if armour_chance == 1:
+            if armour_chance == 1 and weapon_choice == "*pistol*" and weapon_choice == "**assault rifle**":
+                print("He has", human_enemy.armour_val, "armour\n")
+
+            else:
                 print("He has", human_enemy.armour_val, "armour")
 
             result = fight_human(human_enemy, weapon_choice, bonus_dam, total_armour)
@@ -1895,10 +1956,10 @@ while username.upper() in username_list:
 
 print("\nThis game is played with the number keys corresponding to each choice\n")
 print("Are you ready to Try Survive?")
-play = int(input("Click 1 to Play: "))
+play = input("Click 1 to Play: ")
 
-while play != 1:
-    play = int(input("Click 1 to Play: "))
+while play != "1":
+    play = input("Click 1 to Play: ")
 
 while game:
     calories_used = 0
@@ -2138,7 +2199,7 @@ while game:
             else:
                 setting = "the middle of the night"
 
-            print("You drive around", kilometres, "kilometres, but when you arrive it's", setting)
+            print("You drive roughly", kilometres, "kilometres, but when you arrive it's", setting)
             print("You're close by, but you park your car to avoid unwanted attention")
             if setting == "getting late":
                 print("It'll be dangerous at night, so you better be quick")
@@ -2189,9 +2250,8 @@ while game:
 
                     elif chance == 2:
                         print("It's deserted thankfully, and you fall into a restless sleep")
-                        journal_entry("Had to find shelter while exploring, will get there tomorrow")
-
                         day += 1
+                        journal_entry("Had to find shelter while exploring, will get there tomorrow")
 
                     if result:
                         print("When you wake up, you head to the", location)
@@ -2356,6 +2416,9 @@ while game:
                         print("You have gathered info on the location of the",temp_location_list[choice - 1])
                         fuel_required = random.randint(5,9)
                         explore_list.append(temp_location_list[choice - 1] + " (" + str(fuel_required) + " Litres)")
+
+                        log = "Found a terminal at a Radio tower and got the location of the " + temp_location_list[choice - 1]
+                        journal_entry(log)
 
                     elif location == "Military Base":
                         print("\nYou walk by deserted barracks and empty offices, but something doesn't feel right")
@@ -3080,15 +3143,21 @@ while game:
                 else:
                     chance = random.randint(1, 3)
 
-                    if chance == 1:
-                        print("As you cross through a park on your way, you hear a horde nearby")
-                        print("The sounds of moaning and shuffling remind you that your survival depends on more than just calories")
-                        print("With that, your fear of being eaten beats out your hunger")
-                        print("For now at least...")
+                    if chance != 1:
+                        chance = random.randint(1, 2)
 
-                    elif chance == 2:
-                        print("You don't scavenge for too long today, there looked to be a lot of undead activity")
-                        print("Seems to be getting worse...")
+                        if chance == 1:
+                            print("As you cross through a park on your way, you hear a horde nearby")
+                            print("The sounds of moaning and shuffling remind you that your survival depends on more than just calories")
+                            print("With that, your fear of being eaten beats out your hunger")
+                            print("For now at least...")
+
+                        elif chance == 2:
+                            print("You don't scavenge for too long today, there looked to be a lot of undead activity")
+                            print("Seems to be getting worse...")
+
+                        print("\nDespite your difficulties, you still manage to scrape up something:")
+                        random_item(1, 2, "normal")
 
                     else:
                         zombie_num = random.randint(3, 5)
@@ -3105,7 +3174,7 @@ while game:
                                 print("After the fight, you turn over the mangled body of the survivor and check his pockets")
                                 print("You find:")
                                 random_item(2, 3, "normal")
-                                chance = random.randint(1,3)
+                                chance = random.randint(1,2)
                                 if chance == 1:
                                     random_item(0, 1, "special")
 
@@ -3118,10 +3187,6 @@ while game:
                         else:
                             print("Choosing not to risk it, and potentially end up like that guy, you head home")
                             journal_entry("Saw a guy getting munched on and got out of there")
-
-                    if chance != 3 and game:
-                        print("\nDespite your difficulties, you still manage to scrape up something:")
-                        random_item(1, 2, "normal")
 
             elif chance == 3:
                 chance = random.randint(1, 3)
@@ -5315,7 +5380,7 @@ while game:
 
                 if choice == 1:
                     if len(character[5]) > 0:
-                        print("\nWhat do you need to heal?")
+                        print("What do you need to heal?")
                         count= 1
                         for i in afflictions:
                             print(str(count) + ". " + i)
@@ -5373,7 +5438,7 @@ while game:
                                     print("Your", afflictions[heal_choice - 1], "has been healed")
                                     afflictions.remove(afflictions[heal_choice - 1])
 
-                                    character[5].remove(character[5][choice - 1])
+                                character[5].remove(character[5][choice - 1])
 
                             else:
                                 count = 0
