@@ -3496,7 +3496,7 @@ while game:
                                     journal_entry(log)
 
                                 elif van == "Ambulance":
-                                    random_item(5, 10, "normal", "meds")
+                                    random_item(3, 10, "normal", "meds")
 
                                     log = "Lured a horde away and looted an " + van
                                     journal_entry(log)
